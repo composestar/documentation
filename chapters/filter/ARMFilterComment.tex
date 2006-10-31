@@ -1,0 +1,55 @@
+\para{Filter Identifier}
+The filter has a unique identifier which gives the opportunity to get a filter from its filter module by
+using a filter module element reference. Currently this construct is not used in \Compose* and it comes from the original idea to reuse filter specifications.
+So at the moment the identifier is redundant, but we keep it in the syntax for usability and user-friendliness. Because talking about the fleeStrategy filter is easier
+than talking about the first filter of filter module dynamic strategy.
+
+\para{Filter Modules with both Input and Output Filters}
+As mentioned earlier it is possible to have input and output filters in one filter module. However, the option of using both input and output filters in a filter module is barely used.
+One of the reasons for this is that for most usages of the filter module you only need one of the two filter sets. Some of the used constructs for filters only need an input filter, like for instance the dynamic strategy filter module in Pacman (\autoref{lst::arm::fil:example1}) or a generic inheritance filter module (\autoref{lst::ARM:fmp:example2}).
+
+\begin{figure}[tpb]
+	\centering
+	\includegraphics[style=thirdheight]{ARM-filter-constraints}
+	\caption{Two filter modules with input and output filters}
+	\label{fig::arm::fil:comment1}
+\end{figure}
+
+A limitation for having both input and output filters in one filter module is how the constraints are defined. For instance, if we take two filter modules logging and inheritance and they both have input and output filters and we want to log before the input filters of inheritance and we want to log after the output filters of inheritance, this is demonstrated on the left side of \autoref{fig::arm::fil:comment1}. However in reality
+you end up with the situation on the right, and the only way to get it like the left image is when you break up one of the two filter modules.
+To avoid situations like this, it is advisable to only combine input and output filters if it is really necessary, for instance if they share an internal.
+
+\para{Filters as State Machines}
+\begin{lstlisting}[caption = {Idea for a filter state machine}, label=lst::arm::fil:comment1,style = listing, language = ComposeStar,float=[tpb]]
+inputfilters
+  first : Dispatch = {[*.log]} REPEAT
+  second : Dispatch = {[*.print]}
+}
+\end{lstlisting}
+\begin{lstlisting}[caption = {State machine with filter operators}, label=lst::arm::fil:comment2,style = listing, language = ComposeStar,float=[tpb]]
+internals
+  state = State;
+conditions
+  ifRaisedState : state.ifRaisedState();
+inputfilters
+  first : Before = {[*.log] *.raiseSate};
+  second : Dispatch = {ifRaisedState => [*.print]}
+}
+\end{lstlisting}
+An idea for the usage of the filter operators is to use them for building a state machine. An example is given in
+\autoref{lst::arm::fil:comment1}, in this example we want to let the first filter evaluate and when it matches it moves to the second one until that one matches.
+Whereas this looks like a nice idea, but there are drawbacks. First you get
+problems with the
+syntax and semantics, because you must be able to scope your REPEAT statement and you also need to define
+what the commando's mean. Second, designing such filter sets is hard and it is much better to write
+such a machine with an internal that keeps the state in combination with conditions that handle the state, like \autoref{lst::arm::fil:comment2}.
+The filter of the message for the state change can be done with a meta filter or even the prepend and append filter~\cite{Minnen2006}. Writing such construction is easier then using state machine operators.
+
+\para{Filter Operators and Different Filter Combinations}
+The filter operator is placed between filters. At the moment only the ``if not then'' operator is used which is in the ``;'' token in the syntax. There are two points to comment on the filter
+operator. The first question is why the usage of ``;''? And the second question is can the filter operator mean anything at all?
+
+To start with the second question, as mentioned above with designing the state machine it hard to define new filter operators because you probably end up adding parenthesis and other syntax constructs. Therefore there is no final answer on this question yet, there are some ideas on more filter operators around. But these ideas have problems on the what the semantics are of these operators.
+And to answer the first question, it is indeed a bit strange to use the semicolon as an operator. In most programming languages it marks the end of a statement. We do not allow
+a semicolon after the last filter declaration and this often regarded as annoying by the users. We could add the ``+'' sign as a stand in for ``;'' to make things less confusing. We have not done it yet, due to the fact that we cannot answer the second question yet and it would
+be strange to start adding operators while we have not answered some of the problems with combining filters.

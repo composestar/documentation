@@ -1,0 +1,12 @@
+Currently the original declaration
+style of~\cite{salinas:ms01} is supported besides the new style with predicate queries~\cite{Havinga2005}.
+The original selector syntax is still available in \Compose*,
+an example is shown in \autoref{lst::ARM:sel:example2}.
+even more important to know is that the ``self'' construct still works with the old selector and as long this is not rewritten in the syntactic sugar expander, the old style cannot be removed.
+\begin{lstlisting}[caption={An example of the old style selector}, label = lst::ARM:sel:example2,
+style=listing, language =ComposeStar, float = tpb]
+selectors
+  stream = { *=Rot13Filter.MyReader };
+\end{lstlisting}
+
+The current style has problems with namespace and concerns with the same name, the old selector does not have this problem. See also the Platypus example.

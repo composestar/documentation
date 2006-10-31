@@ -1,0 +1,9 @@
+\begin{lstlisting}[caption = {How to get hold of an internal}, label = lst::ARM:fmp:commentdotnet1,
+style = listing, language=ComposeStar, float = tpb]
+filtermodule returnInternal{
+  internals
+    state : State;
+  inputfilters
+    d : Dispatch = {[*.getState] s.getSelf}
+}
+\end{lstlisting}

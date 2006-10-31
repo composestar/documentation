@@ -1,0 +1,155 @@
+% empty template for ARM entry. By Dirk Doornenbal. V1.1 17 april 2006
+% Filtermodule parameters entry V1.0 22 april 2006
+\chapter{Filter Module Parameters}
+Filter module parameters can be used to bind variables to a filter module
+when the filter module is bound to an object.
+It is possible to use a single parameter value or a list of parameter values; these
+will be referred to as \emph{single parameter} and \emph{list of parameters}.
+The scope of the filter module parameters is the filter module where
+they are declared.
+
+\section*{Syntax}
+Parameters declarations are placed right after the name of the
+filter module. A parameter must have a ``?'' or a ``??'' prefix, followed
+by an identifier.
+The single question mark is for a single value and the double question mark is to mark
+a parameter list.
+After you have declared the parameters you can use them in
+the filter module. The formal syntax is stated in \autoref{lst::ARM:fmp:syntax}.
+
+\begin{lstlisting}[caption = {Parameter declaration syntax}, label = lst::ARM:fmp:syntax,
+style = listing, language = ebnf, float = tpb]
+FilterModule ::= `filtermodule' FilterModuleName [FilterModuleParameters] `{'
+                  [Internals] [Externals] [Conditions]
+                  [InputFilters] [OutputFilters] `}'
+FilterModuleParameters ::= `(' [ParameterDefinition-LIST] `)'
+ParameterDefinition ::= Parameter | ParameterList
+Parameter ::= ``?''Identifier
+ParameterList ::= ``??''Identifier
+\end{lstlisting}
+
+You can use a single parameter to parameterize the following elements of a filter module:%
+\begin{itemize}[noitemsep]
+\item Internal type
+\item External type
+\item External initialization
+\item Condition declaration
+\item Filter type
+\item Filter arguments
+\item Target
+\item Selector
+\end{itemize}
+
+Lists of parameters can only be used in the selector of a matching.
+
+\section*{Semantics}
+The parameters are variables that can be used in the scope of a filter module. The values of the parameters are assigned with the filter module binding.
+Parameter types are inferred automatically; the declaration of a parameter is 
+only the identifier of the parameter with a prefix.
+
+\section*{Examples}
+The first example, \autoref{lst::ARM:fmp:example1}, shows a filter module that
+handles logging. Logging is a common concern and it is likely that a filter module like
+this will end up in a concern library. The given arguments, in line 1 of the example, are an external declaration,
+which can be an object or a method that will return an object, a method reference, 
+which must refer to a method that returns a boolean value, and a set of selectors.
+The external and condition declaration are like an ordinary declaration only the right hand side of the declaration has now a parameter, thus this part is known when the filter module is bound to an object.
+In the filter \lstinline!??setOfSelectors! is used as argument for the selector part, it means that
+every item of the list will be evaluated, in this example this means that there will be a name matching for the functions \lstinline!print! and \lstinline!printAll!, which are given in the filter module binding in line 12.
+In that binding the other two arguments are given as well.
+
+\begin{lstlisting}[caption={Example of a filter module for logging},label=lst::ARM:fmp:example1,
+style=listing,language=ComposeStar,float=tpb]
+filtermodule logging(?externalDeclaration, ?methodreference, ??setOfSelectors){
+  externals
+    logger : Logger = ?externalDeclaration;
+  conditions
+    c : ?methodreference;
+  inputfilters
+    m : Meta = {c => [*.??setOfSelectors] logger.log}
+} 
+
+superimposition
+  filtermodules
+    self <- logging(Logger.instance(), inner.isActive(), {print, printAll});
+\end{lstlisting}
+
+The second example, \autoref{lst::ARM:fmp:example2}, is a generic single inheritance filter module.
+The internal declaration is like an internal declaration with a parameter and with the filter module binding
+a proper class type must be provided. The filter in line 5 first uses a signature matching on inner to have the possibility of overriding methods. \autoref{lst::ARM:fmp:example3} demonstrates a generic encryption filter module with a parameterized filter type and a parameter list for the selector of the matching part.
+
+\begin{lstlisting}[caption={Example of a generic inheritance filter module}, label = lst::ARM:fmp:example2,
+style = listing, language=ComposeStar, float = tpb]
+filtermodule inherit(?internaltype){
+  internals
+    parent : ?internalType;
+  inputfilters
+    d : Dispatch = {<inner.*> inner.*, <parent.*> *.*}
+} 
+\end{lstlisting}
+
+\begin{lstlisting}[caption = {Example of an encryption filter}, label = lst::ARM:fmp:example3,
+style = listing, language =ComposeStar, float = tpb]
+filtermodule encryption(??setOfSelectors, ?filtertype){
+  outputfilters
+    e : ?filtertype = {[*.??setOfSelectors]}
+} 
+\end{lstlisting}
+
+\section*{Legality rules}
+\begin{itemize}[noitemsep]
+\item The identifiers of the parameters must be unique for one filter module, so declaring both \lstinline!?para!
+and \lstinline!??para! is not allowed. So an identifier cannot occur in one filter module with different prefixes;
+\item Although you do not need to specify types, there is a typing system for the parameters. If there is a
+typing error the compiler will let you know, for more information on the technical details  consult
+the implementation details in~\cite{Doornenbal2006};
+\item When you bind a filter module on an object, but you do not provide the correct amount of arguments, Compose*
+will give an error.
+\end{itemize}
+
+\faq{
+\para{FAQ}
+\question {Because ?parameter is a single parameter and ??parameter a list of parameters, does that mean
+that ???parameter is a list of parameter lists?}
+\answer{No, because all ``???(?)\mult'' prefixes are too complex to use and during the design of the filter module parameters no general usage could be found for ???parameter.}
+
+\question{How can you determine the types, for example an internal type or a selector, that you need to fill in the filter module binding?}
+\answer{You must derive the type information from the filter module specification.}
+
+\para{Hints}
+The given arguments for the parameters can be a string or a reference to an object.
+Compose* handles the type conversions for string to object reference and vice versa, but when a wrongly typed
+argument is provided, Compose* will give an error.
+
+In \autoref{lst::ARM:fmp:example1}, line 3, the type of the external is fixed and the initialization string is
+made generic with a parameter. This construction is more robust than the construction where the
+type of the external is a parameter as well. Because with a static type we know that initialization String must
+give back the static type or a type that inherits from the static type, so if the external
+declaration is type sound then we also know a part of the signature. If we take
+\autoref{lst::ARM:fmp:example1}, we see that we can write a reusable logging
+filter module, the user that will reuse this filter module must provide an object with a
+certain signature, in this case we want to have at least the method
+\lstinline !log! in the signature. With an external with a generic type it is not
+possible to enforce this.
+}
+
+\comments{
+The prefixes are inspired by Sally~\cite{Sally} and LogicAJ~\cite{Logicaj}, which
+both extend AspectJ with parameters. They make the distinction between a single parameter
+and a parameter list with the different prefixes ``?'' and ``??''. When we were looking
+to parameters we wanted a way to make them distinct from literals, so adding a prefix is
+an obvious solution for this.
+
+\para{Typing}
+Typing is left out of the grammar because we infer types automatically in Compose*, this means that
+the user does not have to write down the type, which lowers the complexity of the syntax. If there
+is a problem with incompatible types or parameters used on two places and those places do require
+different types, then \Compose* will give an error. 
+}
+
+%\pending{}
+
+\furtherreading{
+The filter module parameters are introduced in \cite{Doornenbal2006},
+here you can find more information on how the syntax was formed and what the other alternatives were.
+}

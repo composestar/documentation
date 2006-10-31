@@ -1,0 +1,31 @@
+\para{Removed from the Old Syntax}
+Several options of the old syntax have not been ported to the new syntax. Two operators which are now
+removed are the \lstinline|=>| and \lstinline[language=ebnf]|~>|, this is done because they have become
+we can use logical operators on the matching elements.
+
+\para{Separated Substitution Elements}
+In the new design we can see when the first substitution element is being parsed, however it is not certain
+this still works when we also allow functions on message attributes. Because these substitution elements can also been seen as
+matching elements. In that scenario we must introduce a separator symbol like ``\lstinline|/|'', to mark the
+transition between condition and matching elements and the substitution elements. This separator comes
+from the original ideas, but is dropped because we could parse the filter correctly without. When we would
+come to the conclusion that this is indeed impossible, we need to add it again to the syntax.
+
+\para{Filter Operators}
+\begin{lstlisting}[caption = {Dynamic strategy filter module in Pacman, with filter operators}, label=lst::arm::se:comment1,style = listing, language = ComposeStar,float=[tpb]]
+inputfilters
+prefilter : Check ={selector = getNextMove} AND
+(
+  stalker_filter : Dispatch = {!pacmanIsEvil, target := stalk_strategy } OR
+  flee_filter : Dispatch = {target := flee_strategy }
+}
+\end{lstlisting}
+\begin{lstlisting}[caption = {Dynamic strategy filter module in Pacman, done in one filter}, label=lst::arm::se:comment2,style = listing, language = ComposeStar,float=[tpb]]
+inputfilters
+behavior : Dispatch ={selector = getNextMove AND ((!pacmanIsEvil, 
+                      target := stalk_strategy ) OR target := flee_strategy )
+\end{lstlisting}
+With the introduction of the new filter syntax, we can look again to the filter operators. With filter operators we can rewrite the input filter set of \autoref{lst::arm::se:example1} to \autoref{lst::arm::se:comment1}. However we get again stuck on the parenthesis and this example could be better
+solved by allowing filters like \autoref{lst::arm::se:comment2}., the only drawback is that such filter
+constructions are not allowed with the proposed syntax. We should not be eager to add this construct to
+the syntax, because the behavior filter is harder to read then the two filter version.

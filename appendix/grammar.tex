@@ -1,0 +1,102 @@
+\chapter{Grammar}
+This is the full design of the grammar. The current used grammar can differ from this one.
+\begin{lstlisting}[label=lst::proposedgrammar,style=listing,language=ebnf]
+Concern ::= `concern' Identifier [`in' Namespace]
+            `{' (FilterModule)* [SuperImposition] [Implementation] `}'
+Namespace ::= Identifier (`.' Identifier)*
+
+FilterModule ::= `filtermodule' FilterModuleName [FilterModuleParameters] `{'
+                  [Internals] [Externals] [Conditions]
+                  [InputFilters] [OutputFilters] `}';
+FilterModuleParameters ::= `(' [ParameterDefinition-LIST] `)'
+ParameterDefinition ::= Parameter | ParameterList
+Parameter ::= ``?''Identifier
+ParameterList ::= ``??''Identifier
+
+Internals ::= `internals' (Identifier-LIST `:' Type 
+              [`=' InitialisationExpression `(' [ Argument-LIST ] `)']`;')*
+Externals ::= `externals' (Identifier `:' Type 
+              `=' InitialisationExpression `(' [ Argument-LIST ] `)' `;')* 
+InitialisationExpression ::= MethodReference
+Conditions ::= `conditions' (Identifier `:' MethodReference `;')*
+MethodReference ::= (FilterModuleElement``.''MethodName | FullyQualifiedName)
+                    [Arguments]
+Arguments ::= `(' Value-LIST `)'
+
+Inputfilters ::= `inputfilters' FilterSet
+Outputfilters ::= `outputfilters' FilterSet
+
+FilterSet ::= Filter (FilterOperator Filter)*
+FilterOperator ::= `;'
+Filter ::= FilterName `:' FilterType [Arguments] `=' `{' FilterElements `}'
+FilterType ::= Identifier
+FilterElements ::= FilterElement (ElementCompositionOperator FilterElement)*
+ElementCompositionOperator ::= ','
+
+FilterElement ::= [ORExpression ConditionOperator] MessagePattern
+ORExpression ::= ANDExpression [`|' ANDExpression]
+ANDExpression ::= NOTExpression [`&' NOTExpression]
+NOTExpression ::= [!] (ConditionLiteral | `('ORExpression`)')
+ConditionLiteral ::= ConditionName | `True'| `False'
+ConditionOperator ::= `=>' | `~>'
+MessagePattern ::= Matching [SubstitutionPart]
+                   | MatchPattern
+                   | `{' Matching (`,' Matching)* `}' [SubstitutionPart] 
+Matching ::= SignatureMatching | NameMatching
+SignatureMatching ::= `<' MatchPattern `>'
+NameMatching ::= `[' MatchPattern `]'
+SubstitutionPart ::= [Target `.'] Selector
+MatchPattern ::= [Target `.'] Selector
+
+Superimposition ::= `superimposition' `{' [Selectors] [FilterModuleBindings]
+                    [AnnotationBindings] [Constraints] `}'
+
+Selectors ::= `selectors' (SingleSelector)*
+SingleSelector ::= Identifier `=' `{' PredicateExpression `}' `;'
+PredicateExpression ::= Identifier PROLOG_EXPRESSION
+
+FilterModuleBindings ::= `filtermodules' (FilterModuleBinding `;')*
+FilterModuleBinding ::= Identifier WeaveOperator 
+                        (FilterModuleReference-LIST 
+                        | `{' FilterModuleReference-LIST `}')
+FilterModuleReference ::= Identifier [`(' FilterArgument-LIST ')']
+AnnotationBindings ::= `annotations' (AnnotationBinding `;')*
+AnnotationBinding ::= Identifier WeaveOperator 
+                        (Identifier-LIST | `{' Identifier-LIST `}')
+WeaveOperator ::= `<-'
+
+Constraints ::= //Not yet implementend
+
+Implementation ::= `implementation'(`by' ClassName `;'
+                   | `in' SourceLanguage `by' ClassName `as' FileName `{' Source `}'
+                   
+ELEMENT-LIST ::= ELEMENT (`,' ELEMENT)*
+ELEMENT-SEQ ::= ELEMENT (`;' ELEMENT)*
+
+ClassName ::= Identifier (`.' Identifier)*
+FileName ::= Quote (Letter | Digit | Special | Dot)* Quote
+FilterArgument ::= SelectorIdentifier | MethodReference | Value
+FilterModuleElement ::= [PackageName (`.' PackageName)* `::'] 
+                        FilterModuleName `:' FilterElement
+FilterModuleName ::= Identifier
+FilterName ::= Identifier
+Identifier ::= (Letter | Special) (Letter | Digit | Special)*
+MethodName ::= Identifier
+Quote ::= `"'
+Selector ::= MethodName [`(' Type-SEQ'`)'] | `*' | Parameter | ParameterList
+SelectorIdentifier ::= Identifier
+SourceLanguage ::= Identifier
+Special ::= `_'
+Target ::= Identifier | `inner'| `*' | Parameter
+Type ::= ClassName | Parameter
+Value ::= Identifier | Number | Parameter | ParameterList
+
+PROLOG_EXPRESSION ::= VarName `|' PrologBody
+VarName ::= UpperCase (LowerCase)*
+PrologBody ::= PrologFun-LIST
+PrologFun ::= ConstString [`(' [Arg-LIST] `)' ]
+Arg::= PrologFun | PrologVar | PrologList | ConstNum
+PrologVar ::= `_' | VarName
+PrologList ::= `[' `]' | `[' ListElems `]'
+ListElems ::= [Arg-LIST] [ `|' (PrologList | PrologVar) ]
+\end{lstlisting}

@@ -1,0 +1,70 @@
+% empty template for ARM entry. By Dirk Doornenbal. V1.5 2 mei 2006
+\chapter{Implementation Part} \label{chapter:implementation}
+The implementation part is were the base language dependent code of a concern is specified. The code
+is copied to a format known to the base language and is compiled by the compiler of the base language. This
+is done to save the effort of writing our own compiler.
+
+\section*{Syntax}
+\begin{lstlisting}[caption = {Implementation syntax}, label = lst::ARM:impl:syntax,
+style = listing, language = ebnf, float = tpb]
+Implementation ::= `implementation'(`by' ClassName `;'
+                   | `in' SourceLanguage `by' ClassName `as' FileName `{' Source `}'
+Source ::= (?)*
+\end{lstlisting}
+The heading of the implementation contains the name of the source language, the class name and the file name.
+The file name needs to be marked with quotes.
+The source code must be written according the specification of the base language. The \Compose* syntax for
+the implementation part is shown in \autoref{lst::ARM:impl:syntax}.
+
+\section*{Semantics}
+The implementation part is the base language dependent part of a concern. As we have already seen in \autoref{ch::arm:con}
+is a concern with only an implementation part just a class.
+
+\section*{Examples}
+\autoref{lst::ARM:ec:example1} shows a C\# class that is fully placed in a concern.
+Besides adding a complete class by stating it in the \emph{cps} file it also possible to point to a dll file.
+Every concern can only have one implementation part.
+
+\begin{lstlisting}[caption={The class Bar as concern},label=lst::ARM:ec:example1, style=listing,language=ComposeStar,float = tpb]
+concern Bar in GrammarTest{
+  implementation in Csharp by Bar as "Bar.cs"{
+    using System;
+    
+    namespace GrammarTest{
+      public class Bar{
+        public void write(){
+          System.Console.WriteLine("Bar");
+        }
+
+      public bool isBar(){
+        return true;
+      }
+    }
+  }
+}
+\end{lstlisting}
+
+\section*{Legality rules}
+\begin{itemize}[noitemsep]
+\item When the code is added in a concern, you need the full heading;
+\item The extension of the file name must be appropriate for the base language.
+\end{itemize}
+
+%\faq{
+%\para{Hints}
+%}
+\comments{
+There have been several ideas on the usage of the implementation part. In \cite{salinas:ms01} the proposal is made to
+add implementations for each base language. So for the source for a logger you write for instance a Java and a C$\sharp$
+source.
+}
+\dotnetcomment{
+The code that is placed in this block, is copied
+to the directory embedded, in the file with the name you have specified.
+
+The syntax cannot handle ``$\sharp$'' in the source language, therefore you need to write sharp full out.
+}
+%\javacomment{}
+%\ccomment{}
+%\pending{}
+%\furtherreading{}

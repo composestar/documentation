@@ -1,0 +1,156 @@
+\usepackage[headheight=13.7pt]{geometry}
+\usepackage[scaled=0.91]{helvet}
+\usepackage{courier}
+\usepackage[color,relax]{composestar}
+\usepackage{chngpage}
+\usepackage[numbers]{natbib}
+\usepackage[draft]{fixme}
+\usepackage{calc}
+\usepackage{amsmath}
+\usepackage{longtable} %needed for the tables.
+\usepackage{array} % for the {IcI}-part in tables
+\usepackage{fancyhdr} % The header and footer package
+\usepackage[Lenny]{fncychap} % fancy chapter headings
+\usepackage{picins, graphicx}
+\usepackage{wrapfig} % wrap figure around text -> replacemnt of picins?
+\usepackage{multicol}
+\usepackage[bookmarksnumbered,linktocpage,plainpages=false,pdfpagelabels]{hyperref}
+
+\renewcommand{\sectionautorefname}{section}
+\renewcommand{\subsectionautorefname}{\sectionautorefname}
+\newcommand{\subfigureautorefname}{\figureautorefname}
+
+\graphicspath{{./}{./images/}{./images/logos}}
+
+% Define grammar language in listings.
+\lstdefinelanguage{ebnf}{%
+  morekeywords={::=, (, ), *, [, ], +},%
+  literate={~}{$\sim$}1,
+  sensitive=true,%
+	morestring=[b]",%
+	morestring=[b]',%
+  morecomment=[l]{//},%
+  morecomment=[s]{/*}{*/}%
+}
+\lstdefinelanguage{antlr}{%
+  morekeywords={:, (, ), *, [, ], +, ?, !},%
+  literate={~}{$\sim$}1,
+  sensitive=true,%
+	morestring=[b]",%
+	morestring=[b]',%
+  morecomment=[l]{//},%
+  morecomment=[s]{/*}{*/}%
+}
+
+% Listing style with colored keywords in a footnote sized font.
+\lstdefinestyle{listingWithNoNumbers}{%
+  style=clean,%
+  style=color,%
+  basicstyle=\footnotesize\ttfamily,%
+  tabsize=2,%
+  breaklines=true,%
+  captionpos=b%
+}
+
+\lstset{style=inline}
+\lstloadlanguages{[AspectJ]Java,[HyperJ]Java,ComposeStar, ebnf}
+
+%---------------------------------------------------------------------------------------
+% Float env.
+%---------------------------------------------------------------------------------------
+\setcounter{topnumber}{1}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{8} % fill in these float pages
+\renewcommand{\textfraction}{0.50}	% allow no text
+\renewcommand{\floatpagefraction}{0.4} % small float pages
+
+%---------------------------------------------------------------------------------------
+% Chapter on/off counters
+%---------------------------------------------------------------------------------------
+\newcounter{@comments}
+\newcounter{@dotnetcomments}
+\newcounter{@javacomments}
+\newcounter{@ccomments}
+\newcounter{@faq}
+\newcounter{@furtherreading}
+\newcounter{@pending}
+
+%---------------------------------------------------------------------------------------
+% F.A.Q commands
+%---------------------------------------------------------------------------------------
+\newcommand{\question}[1]{\textit {\textbf {Q:} \xspace #1 \\}}
+\newcommand{\answer}[1]{\textbf{A:} \xspace #1 \\}
+
+%---------------------------------------------------------------------------------------
+% General
+%---------------------------------------------------------------------------------------
+% Table settings both from the LaTeX companinion 2nd ed.
+\newcolumntype{I}{!{\vrule width 1.7pt}}
+\newlength\savedwidth
+\newcommand\whline{\noalign{\global\savedwidth\arrayrulewitdh
+                            \global\arrayrulewidth 3pt}%
+                   \hline
+                   \noalign{\global\arrayrulewidth\savedwidth}}
+
+\newcommand{\para}[1]{\textbf{#1}\\}
+\newcommand{\subpara}[1]{\textit{\textbf{#1}}\\}
+\newcommand{\faq}[1]{\ifthenelse{\value{@faq}= 1}{\section*{FAQ and Hints}#1}{}}
+\newcommand{\comments}[1]{\ifthenelse{\value{@comments}= 1}{\section*{Commentary}#1}{}}
+\newcommand{\dotnetcomment}[1]{\ifthenelse{\value{@comments}= 1 \and \value{@dotnetcomments}= 1}
+{\subsection*{Comments on Compose*.Net}
+  %\begin{wrapfigure} [6] {l} [0pt] {0pt}
+  	%\begin{figure}
+			%\centering
+			%\includegraphics[width = 2.5 cm]{images/logos/DotNet}
+		%\end{figure}    
+  %\end{wrapfigure}
+#1}{}}
+\newcommand{\javacomment}[1]{\ifthenelse{\value{@comments}= 1 \and \value{@javacomments}= 1}
+{\subsection*{Comments on Compose*.Java}
+  %\begin{wrapfigure} [6] {l} [0pt] {0pt}
+  	%\begin{figure}
+			%\centering
+			%\includegraphics[width = 2.5 cm]{images/logos/java}
+		%\end{figure}    
+  %\end{wrapfigure}
+#1}{}}
+\newcommand{\ccomment}[1]{\ifthenelse{\value{@comments}= 1 \and \value{@ccomments}= 1}
+{\subsection*{Comments on Compose*.C}
+  %\begin{wrapfigure} [6] {l} [0pt] {0pt}
+  	%\begin{figure}
+			%\centering
+			%\includegraphics[width = 2.5 cm]{images/logos/Cplain}
+		%\end{figure}    
+  %\end{wrapfigure}
+#1}{}}
+\newcommand{\pending}[1]{\ifthenelse{\value{@pending}= 1}
+{\section*{Pending Questions}
+  %\begin{wrapfigure} [6] {l} [0pt] {0pt}
+  	%\begin{figure}
+			%\centering
+			%\includegraphics[width = 2.5 cm]{images/logos/karel}
+		%\end{figure}    
+  %\end{wrapfigure}
+#1}{}}
+\newcommand{\furtherreading}[1]{\ifthenelse{\value{@furtherreading}= 1}{\section*{Further Reading}#1}{}}
+
+\newcommand{\turnOn}[1]{\setcounter{#1}{1}}
+\newcommand{\turnOff}[1]{\setcounter{#1}{0}}
+
+\newcommand{\mult}{$^{*}$}
+
+%---------------------------------------------------------------------------------------
+% Rest
+%---------------------------------------------------------------------------------------
+%Bibliography
+\bibliographystyle{alpha}
+
+\newcommand{\nb}{N.B.\xspace}
+
+% to get rid of the standard US style paragraph indent
+\parindent = 0pt
+\parskip = 11 pt
+
+\makenomenclature
+
+\renewcommand{\subsubsectionautorefname}{\subsectionautorefname}

@@ -1,0 +1,28 @@
+\para{Different Usages of a Concern}
+The \Compose* concern has a multi-role usage due to the way it is built up.
+The different combinations of concern elements and their explanations are shown in \autoref{tab::arm::con:concernusage}~\cite{bergmans:aosdbook05}.
+The usages in this table are all the possible usages of concerns. 
+
+\begin{table*}[tpb]
+\begin{center}
+	\centering
+	% table : FM - SI - Impl -- Ex
+		\begin{tabular}{I c | c | c I l I} \hline
+		Filter& Super- & Implemen- &  \\
+		Module(s)& imposition & tation & Explanation\\ \hline
+		No  & No	& Yes	& CF conventional class\\ \hline
+	  Yes & only to self & Yes & CF conventional CF class\\ \hline
+	  Yes & Yes & Yes	& Crosscutting concern with implementation\\ \hline
+	  Yes & Yes & No	& ``Pure'' crosscutting concern, no implementation\\ \hline
+	  Yes & No  & No 	& CF abstract advice without crosscutting definition\\ \hline
+	  No  & Yes	& No 	& Superimposition only (of reused filter specs.)\\ \hline
+	  No  & Yes	& Yes & CF class or aspect with only reused filter specs.\\ \hline
+	 	\end{tabular}
+	\caption{Different concern usages}
+	\label{tab::arm::con:concernusage}
+\end{center}
+\end{table*}
+
+\para{Concern Parameters}
+There has been the idea to use global variables in a concern. These variables were declared in a concern with the concern parameters block. However it became clear that it is not possible to assign these parameters anywhere in the application, because with the introduction of superimposition it is no longer useful to instantiated concerns manually with arguments.
+Therefore the concern parameters are removed from the \Compose* syntax.

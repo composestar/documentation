@@ -1,0 +1,125 @@
+\chapter{Selector functions} \label{appendix:selectorfunctions}
+There are 90\footnote{Each function has the possibility to apply only on one or on a whole list. 45 times 2 is 90.} different selector functions currently defined. They can be
+divided in two families: the ones derived from program elements and those
+derived from relations. The different program elements are:
+\begin{itemize}
+	\item isNamespace(NS)
+  \item isType(Type)
+  \item isInterface(Interface)
+  \item isClass(Class)
+  \item isMethod(Method)
+  \item isField(Field)
+  \item isParameter(Parameter)
+  \item isAnnotation(Annotation)
+\end{itemize}
+A short description of the elements is listed below: %copied from the TWiki -> althoug different lay-out
+
+\emph{Namespace element}\\    
+The name of a namespace is its fully qualified name, \ie the complete path up to this point in the namespace hierarchy, such as \emph{"java.util"} or \emph{"mycompany.myapp.gui"}. Therefore the name of a namespace is unique. Currently a namespace can not have any attributes.\\
+
+\emph{Type element}\\
+The name of a type is its fully qualified name, \eg \emph{"java.util.Hashtable"} or
+\emph{"mycompany.myapp.gui.SomeWidget"}. Therefore the name of a Type is unique. Types can have a "public" attribute.
+"Type" is a supertype of Interfaces and Classes.\\
+
+\emph{Interface element}\\
+See Type, but matches only Interfaces.\\
+
+\emph{Class element}\\
+See Type, but matches only Classes.\\
+
+\emph{Namespace element}\\
+See Type.\\
+
+\emph{Method element}\\
+Method names are e.g. 'getThis' or 'setThat' - they are not generally unique (not even within a single class). Methods can have the following attributes: public, private, static, final.\\
+
+\emph{Field element}\\
+Field names are e.g. 'mCounter', 'dataStore'. Field names are not generally unique, because a field with the same name can occur in different classes. Fields can have the following attributes: public, private, static.\\
+
+\emph{Parameter element}
+Parameters are named like fields. Names are not unique. Parameters do not have attributes.\\ 
+
+From these elements the following functions are derived:
+\begin{itemize}
+	\item isNamespaceWithName(NS, Name)
+  \item isNamespaceWithAttribute(NS, Attr)
+  \item isTypeWithName(Type, Name)
+  \item isTypeWithAttribute(Type, Attr)
+  \item isInterfaceWithName(Interface, Name)
+  \item isInterfaceWithAttribute(Interface, Attr)
+  \item isClassWithName(Class, Name)
+  \item isClassWithAttribute(Class, Attr)
+  \item isAnnotationWithName(NS, Name)
+  \item isAnnotationWithAttribute(NS, Attr)
+  \item isAnnotationWithName(NS, Name)
+  \item isAnnotationWithAttribute(NS, Attr)
+  \item isMethodWithName(Method, Name)
+  \item isMethodWithAttribute(Method, Attr)
+  \item isFieldWithName(Field, Name)
+  \item isFieldWithAttribute(Field, Attr)
+  \item isParameterWithName(Parameter, Name)
+  \item isParameterWithAttribute(Parameter, Attr)
+\end{itemize}
+
+The relations can be divided into sub groups. This gives the following
+groups with functions:
+
+\emph{Namespace relations}
+\begin{itemize}
+	\item namespaceHasInterface(Namespace, Interface) - the Namespace contains Interface.
+  \item namespaceHasClass(Namespace, Class) - the Namespace contains Class.
+\end{itemize}
+
+\emph{Type relations}
+\begin{itemize}
+	\item typeHasAnnotation(Type, Annotation) - the Type has Annotation attached.
+  \item isSuperType(SuperType, SubType) - SubType directly inherits from SuperType.
+\end{itemize}
+
+\emph{Class relations}
+\begin{itemize}
+	\item classHasAnnotation(Class, Annotation) - the Class has Annotation attached.
+  \item classHasAnnotationWithName(Class, AnnotName) - the Class has an annotation with the specified name attached.
+  \item classHasMethod(Class, Method) - Class has Method.
+  \item classHasField(Class, Field) - the Class has Field.
+  \item isSuperClass(SuperClass, SubClass) - SubClass directly inherits from SuperClass.
+  \item inherits(Parent, Child) - Child is in the inheritance tree of Parent (e.g. any subclass of Parent).
+  \item inheritsOrSelf(Parent, Child) - Child is in the inheritance tree of Parent or Parent == Child (e.g. Parent and all subclasses).
+  \item implements(Class, Interface) - the Class implements Interface.
+\end{itemize}
+
+\emph{Interface relations}
+\begin{itemize}
+    \item isSuperInterface(SuperInterface, SubInterface) - SubInterface directly inherits from SuperInterface.
+    \item interfaceHasAnnotation(Interface, Annotation) - Interface has Annotation attached.
+    \item interfaceHasAnnotationWithName(Interface, AnnotName) - the Interface has an annotation with the specified name attached.
+    \item interfaceHasMethod(Interface, Method) - Interface declaration contains Method.
+\end{itemize}
+
+\emph{Method relations}
+\begin{itemize}
+	\item methodReturnClass(Method, Class) - Method returns a result of type Class. Don't confuse with classHasMethod!
+  \item methodHasParameter(Method, Parameter) - Method has the specified Parameter. Parameters are not ordered, but can be selected by name of the argument. It is (at least currently) not possible to select e.g. the first argument of a method.
+  \item methodHasAnnotation(Method, Annotation) - Method has Annotation attached.
+  \item methodHasAnnotationWithName(Method, AnnotName) - the Method has an annotation with the specified name attached.
+\end{itemize}
+
+\emph{Field relations}
+\begin{itemize}
+	\item fieldClass(Field, Class) - the class (type) of a field - not to be confused with the Type that the field is a part of (classHasField).
+  \item fieldInterface(Field, Interface) - the interface (type) of a field.
+  \item fieldHasAnnotation(Field, Annotation) - Field has Annotation attached.
+  \item fieldHasAnnotationWithName(Field, AnnotName) - the Field has an annotation with the specified name attached.
+\end{itemize}
+
+\emph{Parameter relations}
+\begin{itemize}
+	\item parameterClass(Parameter, Class) - the class (type) of a parameter.
+  \item parameterHasAnnotation(Parameter, Annotation) - Parameter has Annotation attached.
+  \item parameterHasAnnotationWithName(Parameter, AnnotName) - the Parameter has an annotation with the specified name attached.
+\end{itemize}
+
+This are all the basic functions. It is possible to use all functions with the postfix \emph{InList}.
+So \emph{isClassWithName} has a similar function \emph{isClassWithNameInList}. This brings
+the total number of functions on 90.

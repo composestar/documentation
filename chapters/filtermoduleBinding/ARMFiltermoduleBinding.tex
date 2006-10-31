@@ -1,0 +1,65 @@
+\chapter{Filter Module and Annotation Binding} \label{ch::arm::fmb}
+The binding parts are the places to bind certain properties to elements of a selector. Currently we can bind filter modules
+and annotations to classes.
+
+\section*{Syntax}
+\begin{lstlisting}[caption = {Bindings syntax}, label = lst::ARM:fmb:syntax,
+style = listing, language = ebnf, float = tpb]
+FilterModuleBindings ::= `filtermodules' (FilterModuleBinding `;')*
+FilterModuleBinding ::= Identifier WeaveOperator 
+                        (FilterModuleReference-LIST 
+                        | `{' FilterModuleReference-LIST `}')
+FilterModuleReference ::= Identifier [`(' Argument-LIST ')']
+AnnotationBindings ::= `annotations' (AnnotationBinding `;')*
+AnnotationBinding ::= Identifier WeaveOperator 
+                        (Identifier-LIST | `{' Identifier-LIST `}')
+WeaveOperator ::= `<-'
+\end{lstlisting}
+The syntax in \autoref{lst::ARM:fmb:syntax} shows the common layout for bindings. The weave operator is legacy, from
+the times when unweaving was still considered. The left hand side identifier must be a selector reference and the
+right hand side depends on what kind of binding you are doing.
+
+\section*{Semantics}
+The meanings of the bindings is that you superimpose whatever is on the right hand side on the left hand side.
+Currently \Compose* only binds filter modules and annotations. 
+The bindings gets executed during the initialization of the application.
+
+\section*{Examples}
+\begin{lstlisting}[caption={Examples of bindings}, label = lst::ARM:fmb:example1,
+style=listing, language =ComposeStar, float = tpb]
+filtermodules
+  selA <- filtermoduleA;
+  selB <- filtermoduleB(``Argument'', selC), filtermoduleA;
+annotations
+  selA <- anAnnotation;
+\end{lstlisting}
+A binding has a left hand side and a right hand side, the left hand side contains a selector identifier,
+which contains a selection of classes. The right hand side has one or more filter module identifiers with the appropriate
+arguments or one of more annotations. Some examples are shown in \autoref{lst::ARM:fmb:example1}.
+
+\section*{Legality Rules}
+\begin{itemize}[noitemsep]
+\item The used selectors must be defined in the same superimposition block;
+\item The used filter module references must point to an existing filter module.
+\end{itemize}
+
+%faq{} -> geen vragen, moet alemaal duidelijk zijn
+\comments{
+\para{More Binding Operations} % aka puinruimen
+In the begin days of \Compose* there were ideas on binding and unbinding on events, however these never got implemented.
+This leaves us with the only weave operator: ``\lstinline|<-|''.
+
+\para{Introduction of Parameters}
+The binding of filter modules differs from the annotation binding because it has the possibility to attach arguments.
+In this argument list we allow constructors to get an unique external that is only shared for that binding.
+}
+\dotnetcomment{
+\para{Introduction of Parameters}
+Both constructs mentioned in the comments do not work currently, only literals can be used as arguments for now.
+}
+%\javacomment{}
+%\ccomment{}
+%\pending{}
+\furtherreading{
+More on filter module binding can be found in~\cite{salinas:ms01}. Annotation binding is introduced in~\cite{Havinga2005}.
+}

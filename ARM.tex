@@ -1,0 +1,97 @@
+\documentclass[a4paper,11pt]{report}
+
+\include{preamble}
+\usepackage[draft]{fixme}
+
+\begin{document}
+\makenomenclature
+\title{\Compose*{} Annotated Reference Manual}
+\maketitle
+
+\pagestyle{empty}
+\fancypagestyle{plain}{
+\fancyhead{}% clear header fields
+\fancyfoot{}
+}
+
+%\include{acknowledgments}
+\include{readingguide}
+
+\tableofcontents
+\cleardoublepage 
+\listoffigures
+\cleardoublepage
+\printnomenclature  %[1in]
+
+%\listoffixmes
+
+\cleardoublepage
+\pagenumbering{arabic}% Arabic numbering 1, 2, ..
+
+%------------------------------------------------------------------------------------------
+%% setting some chapters on/off, 1 means on, the rest off.
+%------------------------------------------------------------------------------------------
+\turnOn{@comments}
+\turnOn{@dotnetcomments}
+\turnOff{@javacomments}
+\turnOff{@ccomments}
+\turnOn{@faq}
+\turnOn{@furtherreading}
+\turnOn{@pending}
+
+%---------------------------------------------------------------------------------------
+% Header and footer
+%---------------------------------------------------------------------------------------
+% from the LaTeX companion
+\setcounter{tocdepth}{2}
+\pagestyle{fancy} \fancyhf{}
+\renewcommand\chaptermark[1]{\markboth{\thechapter\ #1} {}}
+\renewcommand\sectionmark[1]{\markright{\thesection\ #1} {}}
+\renewcommand\subsectionmark[1]{\markright{\thesection\ #1} {}}
+\renewcommand\headrulewidth{0.4 pt}
+\renewcommand\footrulewidth{0.4 pt}
+\fancyhead{}% clear header fields
+\fancyfoot{}
+\fancyhead[R]{University Twente}
+\fancyhead[L]{\textnormal{\leftmark}}
+\fancyfoot[L]{\Compose*{} ARM}
+\fancyfoot[R]{\thepage}
+
+\fancypagestyle{plain}{
+\fancyhead{}% clear header fields
+\fancyfoot{}
+\fancyfoot[L]{\Compose*{} ARM}
+\fancyfoot[R]{\thepage}
+\renewcommand\headrulewidth{0 pt}
+\renewcommand\footrulewidth{0.4 pt}
+}
+
+\include{glossary/glossary}
+\include{chapters/concern/ARMConcern}
+\include{chapters/filtermodule/ARMFilterModule}
+\include{chapters/filtermoduleParameters/ARMFilterModuleParameters}
+\include{chapters/internals/ARMInternals}
+\include{chapters/externals/ARMExternals}
+\include{chapters/conditions/ARMConditions}
+\include{chapters/filter/ARMFilter}
+\include{chapters/filtertype/ARMFilterType}
+\include{chapters/conditionPart/ARMConditionPart}
+\include{chapters/matchingPart/ARMMatchingPart}
+\include{chapters/substitutionPart/ARMSubstitutionPart}
+\include{chapters/superimposition/ARMSuperimposition}
+\include{chapters/selector/ARMSelector}
+\include{chapters/filtermoduleBinding/ARMFiltermoduleBinding}
+\include{chapters/embeddedCode/ARMEmbeddedCode}
+
+%\addcontentsline{toc}{part}{Appendices}
+\appendix
+\include{appendix/selectorfunctions}
+\include{appendix/messageAPI}
+\include{appendix/grammar}
+\include{newchapters/filterelements/ARMFilterelements}
+
+% get rid of the header in the bibliography
+\fancyhead[R]{\textnormal{Bibliography}}
+
+\bibliography{thesis2006/general,thesis2006/dotnet,thesis2006/composestar,thesis2006/aosd-bibliography,ARM}
+\end{document}

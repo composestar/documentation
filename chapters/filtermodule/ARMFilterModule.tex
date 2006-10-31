@@ -1,0 +1,94 @@
+% ARM entry for the filtermodule
+\chapter{Filter Module} \label{chapter:filtermodule}
+The filter module is a reusable entity that holds two sets of filters: the input filters and the output filters. These filters can use objects and conditions, which are also defined in the filter module. 
+A filter module is superimposed on a class and the filter module can extend the signature and the behavior of the class on which it is superimposed.
+
+\section*{Syntax}
+\begin{lstlisting}[caption = {Filter module syntax}, label = lst::ARM:fm:syntax,
+style = listing, language = ebnf, float = tpb]
+FilterModule ::= `filtermodule' FilterModuleName [FilterModuleParameters] `{'
+                  [Internals] [Externals] [Conditions]
+                  [InputFilters] [OutputFilters] `}';
+\end{lstlisting}
+A filter module has a unique identifier in a concern; the uniqueness is defined over the name and not the name
+in combination with the parameters.
+The  ordering of the blocks
+of a filter module
+is fixed, thus it is only possible to use them in the ordering as shown in the syntax of \autoref{lst::ARM:fm:syntax}. The filter module template is demonstrated in
+the concern template in \autoref{lst::arm::fm:tmtemplate}.
+All the blocks are optional, making it possible to write a completely empty filter module.
+\begin{lstlisting}[language={Composestar},style=floatlisting, caption={Filter module template},label={lst::arm::fm:tmtemplate}, floatplacement=tbp]
+filtermodule ( ... ) {
+  internals
+    ...
+  externals
+    ...
+  conditions
+    ...
+  inputfilters
+    ...
+  outputfilters
+    ...
+}
+\end{lstlisting}
+
+\section*{Semantics}
+\begin{figure}[tpb]
+	\centering
+	\includegraphics[style= fourthheight]{images/ARM-filtermodule}
+	\caption{Schematic representation of a filter module}
+	\label{fig::arm::fm:schema}
+\end{figure}
+A filter module is an entity that holds filter sets which are composed together.
+The objects and the conditions that are used in the filters are also declared in the filter module.
+\autoref{fig::arm::fm:schema} demonstrates
+how a filter module can be visualized in a schema.
+The schema shows a filter module superimposed to an object, this object is called the ``inner'' object.
+Any message that is sent to the object goes through the input filters and any message that is sent
+goes through the output filters. Both filter sets can use internals, externals, and conditions.
+These elements are declared in the internals, externals, and conditions blocks.
+
+\section*{Examples}
+\begin{lstlisting}[caption={Dynamic strategy filter module from Pacman },label=lst::ARM:fil:example1,style=listing,language=ComposeStar,float=[tpb]]
+filtermodule dynamicstrategy{
+  internals
+    stalk_strategy : pacman.Strategies.StalkerStrategy;
+    flee_strategy : pacman.Strategies.FleeStrategy;   
+  conditions
+    pacmanIsEvil : pacman.Pacman.isEvil();
+  inputfilters
+    stalker_filter : Dispatch = {!pacmanIsEvil => 
+      [*.getNextMove] stalk_strategy.getNextMove};
+    flee_filter : Dispatch = {[*.getNextMove] flee_strategy.getNextMove}
+}
+\end{lstlisting}
+\begin{lstlisting}[caption={Enqueue filter module from Jukebox },label=lst::ARM:fil:example2,style=listing,language=ComposeStar,float=[tpb]]
+filtermodule Enqueue{
+  externals
+    playlist: Jukebox.Playlist = Jukebox.Playlist.instance();
+  inputfilters
+    meta : Meta = { True => [*.play] playlist.enqueue}
+}
+\end{lstlisting}
+A filter module can consist of parameters, internals, externals, conditions, input filters, and output filters.
+The blocks in which these filter elements are declared are all optional, so the shortest filter module you can write is \lstinline!filtermodule fm {}!. \autoref{lst::ARM:fil:example1}
+and \autoref{lst::ARM:fil:example2} show two example filter modules taken from the \Compose* example directory~\cite{Composestar}. What the separate filter module elements do can be found in their respective
+chapters, the examples are given to get an idea of how to build up a filter module.
+The ordering of the blocks is fixed, so for instance, it is not possible to place the conditions block before the internals block.
+
+\section*{Legality Rules}
+\begin{itemize}[noitemsep]
+\item The identifier of a filter module must be unique for the concern where it is declared in;
+\item The blocks in a filter module must be in the following ordering: internals, externals, conditions, input filters, and output filters;
+\item You can only have one declaration of the above mentioned blocks, for example there can be only one set of internals.
+\end{itemize}
+
+%\faq{} no questions, should be clear, I'm not going to think any questions and hints
+\comments{
+\input{chapters/filtermodule/ARMFilterModuleComment}
+}
+%\dotnetcomment{\input{chapters/filtermodule/ARMFilterModuleDotNETComment}}
+%\javacomment{}
+%\ccomment{}
+%\pending{}
+%\furtherreading{}

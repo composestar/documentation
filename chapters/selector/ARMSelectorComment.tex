@@ -1,0 +1,16 @@
+The design issues for the new selectors are described in~\cite{Havinga2005}, however the usage changes with the addition of new features and some things can be added to the selector language.
+
+\para{Extended Selector Syntax}
+\begin{lstlisting}[caption={A selector with extended syntax}, label = lst::ARM:sel:comment1,
+style=listing, language =ComposeStar, float = tpb]
+selectors
+  selection(C, M, A) = {MethodHasAnnotation(M, A),
+           classHasMethods(C, M), classWithName(C, "certainName")};
+  selectionB(C) = selection(C, M, A);
+filtermodules
+  selection.C <- fm(selection.A);
+\end{lstlisting}
+With the introduction of filter module parameters, we also want to select program elements to use as arguments in the
+filter module binding. And it would be even better if we can get multiple selectors from one query. So the new proposed
+layout is like \autoref{lst::ARM:sel:comment1}, were it is possible to use the variables of the query further on in
+the superimposition. Another proposal is to reuse queries in other queries, which offer good reusable code.

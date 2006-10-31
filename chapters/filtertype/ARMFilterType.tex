@@ -1,0 +1,77 @@
+\chapter{Filter Type} \label{chapter:filtertype}
+The type of a filter specifies how a filter behaves for an accept and a reject of the condition and the matching part.
+This includes the specification of how to execute the substitution part.
+There are currently four predefined filter types and it is possible to create custom filter types.
+It is possible to add arguments in a filter specification, it depends on the filter type what the semantics
+are of the arguments.
+
+\section*{Syntax}
+\begin{lstlisting}[caption = {Filter type syntax}, label = lst::ARM:filtype:syntax,
+style = listing, language = ebnf, float = tpb]
+Filter ::= FilterName `:' FilterType [`(' ArgumentList ')'] `=' '{' FilterElements '}'
+FilterType ::= Identifier
+\end{lstlisting}
+As demonstrated in \autoref{lst::ARM:filtype:syntax}, a filter type it must be a predefined filter type or custom defined one. It is not possible
+to overwrite the predefined filters, so a dispatch filter always behaves the same.
+
+\section*{Semantics}
+The four filter types that are currently in use are described below:
+\begin{description}[style=nextline,noitemsep]
+\item [Dispatch] If the message is accepted, then the target and the selector of the message get substituted with
+the values of the target and selector of the substitution part. If the value is a wildcard (``*''), then the
+original value remains unchanged. After that, the message is dispatched to the target of the message; this can be
+either the old target or a new one. In the situation that the target is the old value, the message starts again at the begin of the
+input filter set. A dispatch to inner goes directly to the inner object. Dispatch can only be used for input filters;
+\item [Send] The send filter is the dispatch filter for the output filters. When the filter matches the target and the
+selector gets substituted with the values that are in the substitution part;
+\item [Error] An error filter raises an exception when it rejects. It ignores the substitution part;
+\item [Meta] When a meta filters matches it reifies the current message and add it as an argument of a new message.
+This new message is sent to the object and method declared in the
+substitution part. This method must have a single parameter of the type \emph{ReifiedMessage}. In this method it is
+possible to alter the message and to let it resume or to send it back.
+\end{description}
+
+A custom filter gets extended from a meta filter and it is possible to define how it handles the different parts
+and values.
+
+\section*{Examples}
+\begin{lstlisting}[caption={Some different filter types },label=lst::ARM:ft:example1,style=listing,language=ComposeStar,float=[tpb]]
+...
+inputfilters
+  d : Dispatch = {<inner.*> inner.*};
+  rotate : Rot13 = { [*.ReadLine] };
+  l : Log (?argument) = {[*.log]};
+  e : Error = {[*.*]}
+}
+\end{lstlisting}
+In \autoref{lst::ARM:ft:example1} four different filters are used, the first and last filter declaration use predefined filter types, the
+other two use custom filter types. An example of how to write a custom filter type is demonstrated in the Rot13 example~\cite{Composestar}.
+It is possible to initialize a custom filter with the filter parameters.
+
+\section*{Legality Rules}
+\begin{itemize}[noitemsep]
+\item A custom filter type cannot have the same name as a predefined one;
+\item A custom filter type must a have an implementation in the application.
+\end{itemize}
+
+%\faq{}
+\comments{
+It is not possible to redefine predefined filter types, this is done to keep the language understandable for a user
+because in this way a dispatch filter will always behave like a dispatch filter.
+
+The advantage of predefined filters is that we know what they do and therefore we can do a static analysis on the
+flow of a filter set. With a meta filter we do no longer know what happens, because the resume and return commandos of a message
+are called in the implementation. On the other hand, predefined filter types are only a selection of possibilities and the meta filter is a necessary type for creating other non-predefined behavior.
+So it is a constant trade-off between being all flexible by only using custom filters or
+just trying to add predefined or custom defined filters for every situation, just to have filter sets where you can reason about.
+Therefore we keep the current set of predefined filter types,
+however there is room for some more predefined filter types.
+}
+\dotnetcomment{
+Other predefined filter types have already been described in various publications on \Compose*, however these are currently not implemented. This are the \emph{wait}~\cite{bergmans:phd94} and \emph{real-time}
+filters which date back before \Compose* and the \emph{prepend} and \emph{append} filters~\cite{Minnen2006}.
+}
+%\javacomment{}
+%\ccomment{}
+%\pending{}
+%\furtherreading{}

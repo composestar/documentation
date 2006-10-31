@@ -1,0 +1,17 @@
+\para{The use of Arguments in Constructors Calls}
+The internal initialization is done with a constructor without arguments;
+this is a result of the requirement to be language independent. The internal declaration 
+\lstinline!internal: Person = Person(``Albert'', 24, true);! is considered as language dependent and therefore
+only constructors without arguments are used. We will not re-discuss the point of allowing primitive values
+in the internal declaration, because is has been discussed in \autoref{chapter:filtermodule}.
+However, with the introduction of the filter module parameters it is possible to
+use objects, which are passed through the filter module parameters, in the declaration of the internals.
+This feature is not added to the syntax yet, because it relies on the full implementation of the filter
+module parameters. When this is realized then the syntax can change to the one given in \autoref{lst::ARM:int:syntax2}.
+\\\\
+\begin{lstlisting}[caption = {Proposed internal syntax}, label = lst::ARM:int:syntax2,
+style = listing, language = ebnf]
+Internals ::= `internals' (Identifier-LIST `:' Type 
+              [`=' InitialisationExpression `(' [ Argument-LIST ] `)']`;')*
+\end{lstlisting}
+Because we already use default constructors, we already have the mapping from the language independent declaration to language specific constructor calls, thus we do not have to work them out for adding arguments in a constructor.

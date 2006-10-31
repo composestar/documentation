@@ -1,0 +1,16 @@
+\para{Basic Set of Logical Operators}
+The supported set operators are the \emph{and}, \emph{or}, and \emph{not}. These three are enough to create any other possible logic operator because they form a \emph{functional complete} set~\cite{vanBenthem91}.
+Because we want to reason about the filters, we keep the syntax as simple as possible on this point. It is easier to write an algorithm that only has to take care of three
+operators instead of a whole set.
+
+We could go further by removing all the operators and just write one method that calls all the separate
+conditions, however this would also mean that this method should also know the references to the internals, externals,
+and inner object, and even more important this method would be quite complex and not be reusable at all. Therefore we adopt a limited set
+of logical operators.
+
+\dotnetcomment{
+\para{Current Implementation}
+Currently the condition part is not programmed as described in this chapter; the nesting is not in the logical operators yet.
+Thus \lstinline|(True & False) & True| will give an error. Because the \Compose* grammar is the same for all ports it therefore
+affects every port.
+}

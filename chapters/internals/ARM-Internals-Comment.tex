@@ -1,0 +1,23 @@
+\begin{lstlisting}[caption = {A filtermodule with a primitive}, label = lst::ARM:int:example3,
+style = listing, language =ComposeStar, float = tpb]
+filtermodule rollbackcounter{
+  internals
+    a : int;
+  inputfilters
+    e : Error = {(if a > 10) => [*.*]};
+    m : Meta = {[*.rollback] inner.smallError}
+}  
+\end{lstlisting}
+
+\begin{lstlisting}[caption = {A filtermodule with a primitive}, label = lst::ARM:int:example4,
+style = listing, language =ComposeStar, float = tpb]
+filtermodule rollbackcounter{
+  internals
+    a : Counter; // extends of Integer
+  conditions
+    greaterThenTen : a.isGreaterThenTen();
+  inputfilters
+    e : Error = {<greaterThenTen => [*.*]};
+    m : Append = {[*.rollback] a.raiseCounter}
+}
+\end{lstlisting}

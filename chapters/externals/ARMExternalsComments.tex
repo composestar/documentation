@@ -1,0 +1,31 @@
+The advantage of using the Singleton pattern becomes visible when we would use a
+parameter as initialization String. In the given example \autoref{lst::arm::ext:example1},
+we see that we can address the same instance of Score from three filter modules and that there will only be one
+instance of Score in the application. We could do the same without a filter module, by just
+adding the Score object to every class. The advantage of the filter is that when we would write
+\lstinline[breaklines=false]!score : pacman.Score = ?instance;!, then we only need to change the initialization String
+in one spot instead of all the classes where we want to access Score.
+
+\para{The Alternative to Singletons}
+With the addition of filter module parameters it is also possible to use a given object from the parameters as an
+external. This fixes the old limitation that you had to choose between a singleton construction, which results in that
+every filter module points the same object, or to use an internal, which results in that very instance has it own instance of the
+internal. In \autoref{lst::ARM:ext:example2} we have an example were two selections, selA and selB, get a different 
+instance of the class secretary. Using an object as a filter module parameter makes it possible to use an instance for
+a certain selection of filter module instances instead of all filter module instances.
+
+\para{Arguments in the Method Calls}
+Currently it is only possible to use the Singleton design pattern for an external declaration. 
+This construct is mentioned earlier in~\cite{Doornenbal2006}
+for arguments in conditions calls.
+
+\para{Introducing Static Methods}
+In the old syntax it was possible to declare an external without an initialization expression. So the syntax was:
+\begin{lstlisting}[style=listingWithNoNumbers,language=ebnf]
+Externals ::= `externals' (Identifier `:' Type 
+              [`=' InitialisationExpression `(' [ ArgumentList ] `)'] `;')*            
+\end{lstlisting}
+
+The purpose of such construct is that with an external declaration without an initialization expression it is possible to introduce static methods. A static method from a class can be used without having instantiated an object from this class.
+Because the target needs to be an internal, external, or the keyword ``inner'', the only way you are able to substitute the target, so that it is send to a static method, is by declaring the class as an external.
+However, this construct has been removed because the construct probably was not placed in the syntax to support the usage of static methods and that it is just an error in the grammar. The theory mentioned above is a possible explanation what the old syntax could mean.

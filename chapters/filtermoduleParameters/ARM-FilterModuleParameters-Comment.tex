@@ -1,0 +1,21 @@
+\begin{lstlisting}[caption = {A filtermodule with a unique external}, label = lst::ARM:fmp:comment1,
+style = listing, language = composestarNew, float = tpb]
+filtermodule customExternal(?external){
+  externals
+    e : Object = ?external;
+}
+
+superimposition{
+  ...
+  filtermodules
+    selA <- FM(CustomExternals.getExternal());
+}
+
+implementation in C# by CustomExternals as CustomExternals.cs{
+  public class CustomExternals{
+    public static Object getExternal(){
+      return new Logger{"log.txt", true, 3};
+    }  
+  }
+}
+\end{lstlisting}

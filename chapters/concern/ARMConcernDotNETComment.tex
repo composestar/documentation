@@ -1,0 +1,30 @@
+\para{Concern Parameters}
+\begin{lstlisting}[caption={JoinPointInfoConcern from the JoinPointInformation example },label=lst::ARM:concern:example1,style=listing,language=ComposeStar,float=[tpb]]
+concern JoinPointInfoConcern
+    (ext_foo : JPInfo.Foo ; ext_bar : JPInfo.Bar) in JPInfo{
+
+  filtermodule JPInfoModule{
+    internals
+      in_foo : JPInfo.Foo;
+      in_bar : JPInfo.Bar;
+      jpie   : JPInfo.JoinPointInfoExtractor;
+    conditions
+      cond : jpie.doCondition();
+    inputfilters
+      meta : Meta = { cond => [*.*] jpie.extract }
+  }
+
+  superimposition{
+    selectors
+      selectees = { C | isClassWithName(C, 'JPInfo.JoinPointInfoConcern') };
+    filtermodules
+      selectees <- JPInfoModule;
+  }
+
+  implementation by JPInfo.JoinPointInfoConcern;
+}
+\end{lstlisting}
+As mentioned in the Commentary of the concerns the concern parameters are removed from the \Compose* syntax.
+This change only exist in the design and in \Compose*[DOTNet] they still exist in the syntax. It is however not clear
+whether they work or not. In \autoref{lst::ARM:concern:example1} the concern is taken from the JoinPointInformation example,
+which can be found in the \Compose* example directory. In this concern specification the concern parameters are declared, but never used in a filter module.

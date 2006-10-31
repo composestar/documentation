@@ -1,0 +1,137 @@
+% ARM entry for Filter Element, aka the new filter syntax
+\chapter{Filter Elements} \label{chapter:newfilterelement}
+The filter elements are the parts of the right hand side of a filter. They are the proposed
+new filter syntax, as described in~\cite{Doornenbal2006}.
+The layout for the condition, matching, and substitution part, are alike in this syntax and therefore they
+have been combined into one chapter.
+
+In the filter element part it is possible to specify the matching and substitution behavior of a filter.
+The old syntax is still usable, because it can be transformed to the new syntax. How this transformation is
+done is shown in~\cite{Doornenbal2006}.
+
+\section*{Syntax}
+\begin{lstlisting}[caption = {Filter element syntax},label=lst::arm:fe:syntax,style=listing,language=ebnf, float=tpb]
+GeneralFilterSet ::= GeneralFilter (FilterCompositionOperator GeneralFilter)*
+FilterCompositionOperator ::= `;'
+GeneralFilter ::= FilterName `:' FilterType [`(' ActualFilterParameters `)'];
+                         `=' `{' [FilterElements] `}'
+FilterElements ::= FilterElement (ElemCompositionOperator FilterElement)*
+ElemCompositionOperator ::= `;'
+
+FilterElement ::=  [ConditionAndMatchingPart `,'] AssignmentPart 
+                   | ConditionAndMatchingPart
+
+ConditionAndMatchingPart ::= OrExpr
+OrExpr ::= AndExpr (`OR' AndExpr)*
+AndExpr ::= PrimaryExpr (`AND' PrimaryExpr)*
+PrimaryExpr ::= [NOT] PlainExpr;
+PlainExpr ::= `(' OrExpr `)' | ConditionPart | MatchingPart
+
+ConditionPart ::= ConditionLiteral
+ConditionLiteral ::= `True' | `False' | ConditionName
+MatchingPart ::= FieldName MatchingOperator (Value | `{' Value-LIST `}')
+                 | FieldOperation
+MatchingOperator ::= equals | equalsOne | equalsAll | sig | OtherOperators
+
+AssignmentPart ::= Assignment (AND Assignment)*
+Assignment ::= FieldName `:=' Value | `{' Value-LIST `}' | FieldOperation
+AssignmentOperator ::= `:=' | OtherOperators
+
+FieldName ::= Identifier
+FieldOperation ::= fqnwithArguments
+AND ::= `&' | `,'
+OR ::= `|'
+NOT ::= `!'
+Value ::= Identifier | Number | Parameter | ParameterList
+Methodcall ::= Identifier `(' Value-LIST `)'
+OtherOperator ::= (* To Be Specified *)
+\end{lstlisting}
+\autoref{lst::arm:fe:syntax} shows the syntax for the filter elements. The conditions and matching elements
+are first, followed by the substitution elements. The conditions elements are the labels defined in the condition field of the filter module. The matching elements are the name of a message property, an operator, and one or more values. It is also possible to use a function of the message.
+The set of usable operators in the matching has not been fully worked out yet.
+It is possible to combine both with the standard set of logical operators, AND, OR, and NOT.
+The substitution element has only the ``:='' operator to assign a value to a message property.
+
+\section*{Semantics}
+The condition and matching elements provide boolean values which can be used in a logical expression to determine whether a filter matches or not. If a filter matches the substitution elements are being
+executed.
+
+The matching elements can have predefined operators, the proposed ones are ``='' and ``sig''.
+The operator ``='' is
+short hand for the equals operator and for a set it means of the out of the set. And the operator ``sig'' means
+signature matching, this operator can only be used to check on a selector whether it is in a certain signature.
+For lists we also have the ``equalsOne'' and ``equalsAll''. Other operators have to be assigned yet.
+The matching elements has only the assignment operator, which is defined as ``:=''.
+
+The comma's between the elements are AND operators. It also has become possible to write filters without any condition or matching elements, so that the substitution elements are always executed.
+
+\section*{Examples}
+\begin{lstlisting}[caption = {Dynamic strategy filter module in Pacman in new filter syntax}, label=lst::arm::se:example1,style = listing, language = ComposeStar,float=[tpb]]
+filtermodule dynamicstrategy{
+  internals
+    stalk_strategy : pacman.Strategies.StalkerStrategy;
+    flee_strategy : pacman.Strategies.FleeStrategy;
+  conditions
+    pacmanIsEvil : pacman.Pacman.isEvil();
+  inputfilters
+    stalker_filter : Dispatch = {!pacmanIsEvil, selector = getNextMove, 
+                                 target := stalk_strategy };
+    flee_filter : Dispatch = {selector = getNextMove, target := flee_strategy }
+}
+\end{lstlisting}
+\begin{lstlisting}[caption = {Custom logging filter module, in new filter syntax}, label=lst::arm::se:example2,style = listing, language = ComposeStar,float=[tpb]]
+filtermodule logger(??inputMethods, ??outputMethods){
+  externals
+    logger : Logger = Logger.instance();
+  conditions
+    isLoggingOn : logger.isOn();
+  inputfilters
+    inlog : Meta = {isLoggingOn, selector = ??inputMethods, target := logger,
+                    selector := log}
+  outputfilters
+   outlog : Meta = {isLoggingOn, selector = ??outputMethods, target := logger,
+                    selector := log}
+}
+\end{lstlisting}
+\begin{lstlisting}[caption={The mass mailer from the filter syntax analysis},label= lst::arm::se:example3,style=listing,language=Composestar,float=[tpb]]
+filtermodule authorization(?rules){
+internals
+  ruleBase = ?rules; 
+externals
+  mailer = MassMailer.instance();
+conditions
+  hasAccesLevelThree : ruleBase.hasAccesLevelThree;
+  hasAccesLevelFive : ruleBase.hasAccesLevelFive;
+inputfilters
+  rule1 : Dispatch = {hasAccesLevelThree, sender = admin, selector sig mailer,
+                      target := mailer};
+  rule2 : Dispatch = {hasAccesLevelFive, sender = secretary, selector = mailer,
+                      target := mailer};
+  rule3 : Dispatch = {!(timestamp > 12.00 & timestamp < 15.00),
+    (sender = (secretary | admin))| hasAccesLevelThree,
+     selector sig mailer, target := mailer};
+  rule4 : Dispatch = {!(timestamp > 8.00 & timestamp < 16.00) selector sig mailer,
+                      target := mailer};
+  error : Error = {}  
+}
+\end{lstlisting}
+In the old syntax entry in the reference manual we have seen two examples, \autoref{lst::arm::fil:example1} and \autoref{lst::arm::fil:example2}, these 
+can be rewritten to the new syntax. The result for Pacman is demonstrated in \autoref{lst::arm::se:example1}
+and the other is demonstrated in \autoref{lst::arm::se:example2}. \autoref{lst::arm::se:example3} is
+an example from~\cite{Doornenbal2006}.
+
+\section*{Legality Rules}
+\begin{itemize}[noitemsep]
+\item It is not possible to place an assignment part before a condition or matching element;
+\item When a attribute of a message is used, it must be available for that type of message.
+\end{itemize}
+
+%\faq{} -> no faq and hints
+\comments{\input{newchapters/filterelements/ARMFilterelementsComment}}
+%\dotnetcomment{}
+%\javacomment{}
+%\ccomment{}
+%\pending{}
+\furtherreading{
+For the full proposal on the new filter element syntax see ~\cite{Doornenbal2006}.
+}

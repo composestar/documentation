@@ -1,0 +1,86 @@
+\chapter{Superimposition} \label{chapter:superimposition}
+The superimposition part of a concern is where you can make a selection of program elements, such as classes, and then superimpose certain entities, such as filter modules and annotations, on this selection.
+
+The superimpositions parts are executed during the initialization of the application, this is necessary because the bindings need to be known before the execution starts.
+
+With the changes in the filter module syntax, the superimposition syntax needs some minor adjustments as well.
+The superimposition and its fields are all quite young, and moreover it is possible for
+all fields to point to the original proposal, were the field is proposed.
+
+The superimposition part with the original selector and
+filter module binding are introduced by~\cite{salinas:ms01}. The new improved selector and
+annotation binding are introduced by~\cite{Havinga2005}.
+
+\section*{Syntax}
+\begin{lstlisting}[caption = {Superimposition syntax}, label = lst::ARM:si:syntax,
+style = listing, language = ebnf, float = tpb]
+Superimposition ::= `superimposition' `{' [Selectors] 
+                    [FilterModuleBindings] [AnnotationBindings]`}'
+\end{lstlisting}
+The syntax, as demonstrated in \autoref{lst::ARM:si:syntax}, shows the syntax of the superimposition part. The result is the 
+skeleton as demonstrated in \autoref{lst::ARM:si:example1}.
+
+\section*{Semantics}
+The superimposition itself is a holder of blocks for selecting elements and defining bindings. It is executed
+during initialization of an application.
+
+\section*{Examples}
+\begin{lstlisting}[caption={The superimposition skeleton}, label = lst::ARM:si:example1,
+style=listing, language =ComposeStar, float = tpb]
+superimposition{
+  selectors
+    ...
+  filtermodules
+    ...
+  annotations
+    ...
+}
+\end{lstlisting}
+A superimposition can have three blocks and the ordering of these blocks are fixed, the skeleton is demonstrated in \autoref{lst::ARM:si:example1}. There is also only zero or one instance of a block. The selectors makes a selection of language elements, which can be used in the filter module and annotation binding.
+
+\section*{Legality Rules}
+\begin{itemize}[noitemsep]
+\item The ordering of the sub blocks is fixed and have the following ordering: selector, filter modules, and annotations; %, and constraints;
+\item Each sub block can only have one instance.
+\end{itemize}
+
+%\faq{} -> clear no faq
+\comments{
+\para{The Ordering of the Selector Parts}
+The ordering and number of occurrences of the sub blocks is fixed, this is characteristic for the whole \Compose* syntax.
+The main reason to do so, is that this ensures that all the declarations of a certain type are all together placed on the same spot. Thus you can find all the selectors within one concern on the selectors block. It is possible to allow
+random and multiple placement of the superimposition and its sub blocks. However, the readability would drop because users
+do not longer know where to expect certain blocks. To keep everything organized is also the reason why there is only one superimposition block per concern.
+
+\para{Removal of Condition and Method Binding}
+In the original design of the superimposition~\cite{salinas:ms01}, there were two blocks called condition and method binding.
+As described in~\cite{Doornenbal2006} they are redundant for the current implementation and therefore
+removed.
+
+\para{Selection of Program Elements}
+Currently the selector is used to select only classes. However, with the adding the filter module parameters and
+some other upcoming research it will be possible to select much more then classes and probably you can also
+superimpose items to the extended selections. Therefore the term \emph{program elements} is used instead of
+classes.
+
+\para{Constraints}
+When multiple filter modules are superimposed on one object, it can be necessary to define an ordering for the filter modules.
+In~\cite{Nagy2006} a model is defined to specify the ordering.
+The module for ordering the filter modules, called SECRET, is in place and be accessed with a XML file. More on this module can be found in~\cite{Durr2004}.
+}
+\dotnetcomment{
+\para{Constraints}
+The earlier mentioned constraint model~\cite{Nagy2006} is not yet implemented in \Compose*[.NET].
+However an earlier model is placed in the syntax, but the semantics are not yet implemented. So the ordering can now be done by providing the ordering in the \emph{filterdesc} XML file of your application,
+so that (insert module) knows the ordering.
+}
+%\javacomment{}
+%\ccomment{}
+%\pending{}
+\furtherreading{
+The initial design of the superimposition can be found in ~\cite{salinas:ms01}. More on the design of the new
+selector language and the binding of annotations is stated in~\cite{Havinga2005}.
+The ideas on the constraints model can be found in~\cite{Nagy2006} and the inner working of the filter module
+ordering in~\cite{Durr2004}.
+For the theory behind the removal of the method and condition binding see~\cite{Doornenbal2006}.
+}

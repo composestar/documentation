@@ -1,0 +1,27 @@
+\para{Parenthesis and Arguments}
+The current implementation does not allow the usage of arguments in the condition declaration.
+As mentioned in~\cite{Doornenbal2006}
+it is a possible addition to the language to add arguments in the condition declaration, because of the introduction of the filter module parameters.
+
+\para{The Use of Conditions from the Inner Object}
+One of the possibilities to declare a condition is to use a boolean method of the inner object. As mentioned earlier, this option is not used in the current set of examples. We can say that it is not widely used due to two limitations:
+the methods must exist and you should know this when you write the selector. Filter modules are imposed on
+multiple classes and when a method of the inner class is used, then all the multiple classes must contain
+this method.
+
+There are three ways to use a condition from an inner object without getting any problems with non-existing
+methods. The first is to write filter modules for just one class or its child classes. If a filter module is written solely for one class then it might not be a crosscutting concern and the behavior of the filter module can be included in the original class.
+The second use for conditions from the inner object is if you select all the classes which implement
+a certain interface. In that scenario you know whether the boolean method is available if it is in the signature of the interface.
+The third one is code conventions, if you use a code convention that classes with a certain annotation all have a method called foo, then it is also possible to use the conditions from the inner object safely.
+
+\para{Removing the Direct Use of Static Methods in the Filter Definition}
+In the old grammar it was possible to directly call static methods in the filter specification. This is sometimes not practical because with the direct calling you might end up using the same method twice and in that case it would be better to use an
+identifier, in order to have a readable filter specification. Another argument for not allowing them in the filter specification, is that they can become quite long as seen in \autoref{lst::ARM:con:example1} line 10.
+
+\para{Language Independent Conditions}
+The selector in the superimposition uses predicate queries to select certain attributes of an application. It uses
+a language independent model of language constructs and each language gets translated to this independent model~\cite{Havinga2005}. For instance it
+uses the term namespace, which gets translated to package for the Java language. In theory it is possible
+to write such language independent model on objects and its attributes, so that we can write language independent conditions
+with predicate queries. This would make it possible to write conditions that are reusable even for another platform.
