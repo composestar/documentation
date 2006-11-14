@@ -1,6 +1,6 @@
 MAIN := ARM
 LATEX_DIRS := chapters newchapters glossary otherchapters
-STYLE_DIRS := thesis2006/style
+STYLE_DIRS := style
 GENERAL_OPTIONS := -interaction=nonstopmode
 MIKTEX_OPTIONS := -max-print-line=120 -include-directory="./style" -include-directory="./style/contrib"
 
