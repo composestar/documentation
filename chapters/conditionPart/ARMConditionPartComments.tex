@@ -8,9 +8,10 @@ conditions, however this would also mean that this method should also know the r
 and inner object, and even more important this method would be quite complex and not be reusable at all. Therefore we adopt a limited set
 of logical operators.
 
-\dotnetcomment{
-\para{Current Implementation}
-Currently the condition part is not programmed as described in this chapter; the nesting is not in the logical operators yet.
-Thus \lstinline|(True & False) & True| will give an error. Because the \Compose* grammar is the same for all ports it therefore
-affects every port.
-}
+%\dotnetcomment{
+%As of 0.6 this is properly implemented
+%\para{Current Implementation}
+%Currently the condition part is not programmed as described in this chapter; the nesting is not in the logical operators yet.
+%Thus \lstinline|(True & False) & True| will give an error. Because the \Compose* grammar is the same for all ports it therefore
+%affects every port.
+%}
