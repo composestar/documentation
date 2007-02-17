@@ -12,7 +12,8 @@ FilterElement = [ConditionExpression ConditionOperator] MessagePattern
 MessagePattern ::= Matching [SubstitutionPart]
                    | MatchPattern
                    | `{' Matching (`,' Matching)* `}' [SubstitutionPart] 
-Matching ::= SignatureMatching | NameMatchingSubstitutionPart = [Target `.'] Selector
+Matching ::= SignatureMatching | NameMatching
+SubstitutionPart = [Target `.'] Selector
 \end{lstlisting}
 
 \section*{Semantics}
