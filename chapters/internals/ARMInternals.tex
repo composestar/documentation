@@ -18,12 +18,9 @@ You can refer to an internal in the conditions field, the filter parameters, and
 Internals can only be objects, primitive types are not allowed.
 \begin{lstlisting}[caption = {Internals syntax}, label = lst::ARM:int:syntax,
 style = listing, language = ebnf, float = tpb]
-FilterModule ::= `filtermodule' Identifier 
-                  [FilterModuleParameters] `{'
-                  [Internals] [Externals] [Conditions]
-                  [InputFilters] [OutputFilters] `}';
-Internals ::= `internals' {Internal ';'};
-Internal ::= Identifier {',' Identifier} ':' Type;
+FilterModule = 'filtermodule' Identifier [FilterModuleParameters] '{' [Internals] [Externals] [Conditions] [InputFilters] [OutputFilters] '}';
+Internals = 'internals' {Internal ';'};
+Internal = Identifier {',' Identifier} ':' Type;
 \end{lstlisting}
 
 \section{Semantics}
@@ -50,7 +47,7 @@ filtermodule isActive{
 }
 superimposition{
   selectors
-    sel = {C | isClassWithNameInList(C,[`A', `B'])};
+    sel = {C | isClassWithNameInList(C,['A', 'B'])};
   filtermodules
     sel <- isActive;
 }

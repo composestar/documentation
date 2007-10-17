@@ -1,26 +1,24 @@
 % ARM entry for the conditions.
 \chapter{Conditions} \label{ch::arm:con}
-The conditions are used to introduce (boolean) methods  in a filter module so that these methods can be used in a filter specification
-to influence the behavior of a filter at runtime. To keep the filter specification simple and to reuse declarations, all the conditions of a filter module are declared in one place: the conditions declaration block.
+The conditions are used to introduce (boolean) methods in a filter module so that these methods can be used in a filter specification to influence the behavior of a filter at runtime. 
+To keep the filter specification simple and to reuse declarations, all the conditions of a filter module are declared in one place: the conditions declaration block.
 The methods for implementing the conditions can be defined in the inner object (the class where the filter module is superimposed to), internals, externals, or are static methods.
 
-\section*{Syntax}
-\begin{lstlisting}[caption={Conditions syntax},label=lst::ARM:con:syntax,style=listing,language=ebnf,float=[tpb]]
-FilterModule ::= `filtermodule' FilterModuleName [FilterModuleParameters] `{'
-                  [Internals] [Externals] [Conditions]
-                  [InputFilters] [OutputFilters] `}'
-Conditions ::= `conditions' (Identifier `:' MethodReference `;')*
-MethodReference ::= (FilterModuleElement``.''MethodName | FullyQualifiedName)
-                    `(' `)'
+\section{Syntax}
+\begin{lstlisting}[caption={Conditions syntax},label=lst::ARM:con:syntax,style=listing,language=ebnf,float=tpb]
+FilterModule = 'filtermodule' Identifier [FilterModuleParameters] '{' [Internals] [Externals] [Conditions] [InputFilters] [OutputFilters] '}';
+Conditions = 'conditions' {Identifier ':' InitialisationExpression ';'};
 \end{lstlisting}
-From the syntax, \autoref{lst::ARM:con:syntax}, we see that the condition name and declaration are a one-to-one relation. Each condition name must be unique for each filter module and the name may also not be used for an internal or external. There are two forms of declaration: a condition can be declared from
-an internal, external, or the inner object and the other option is to use a fully qualified name of a static method.
+From the syntax, \autoref{lst::ARM:con:syntax}, we see that the condition name and declaration are a one-to-one relation. 
+Each condition name must be unique for each filter module and the name may also not be used for an internal or external. 
+There are two forms of declaration: a condition can be declared from an internal, external, or the inner object and the other option is to use a fully qualified name of a static method.
 
-\section*{Semantics}
-A condition declaration labels a method reference with a identifier so that you can use this identifier in the filter specification, instead of a method reference. The method reference of the condition declaration needs to point to a method that returns a boolean.
+\section{Semantics}
+A condition declaration labels a method reference with a identifier so that you can use this identifier in the filter specification, instead of a method reference. 
+The method reference of the condition declaration needs to point to a method that returns a boolean.
 
-\section*{Examples}
-\begin{lstlisting}[caption={Some condition declarations combined},label=lst::ARM:con:example1,style=listing,language=ComposeStar,float=[tpb]]
+\section{Examples}
+\begin{lstlisting}[caption={Some condition declarations combined},label=lst::ARM:con:example1,style=listing,language=ComposeStar,float=tpb]
 filtermodule someConditions{
   internals
     a : VenusFlyTrapExample.Animal;
@@ -34,7 +32,8 @@ filtermodule someConditions{
     // Command of responsibility pattern
     isBlue : inner.isBlue();
 \end{lstlisting}
-In \autoref{lst::ARM:con:example1} five examples of condition declarations are given. Four of these declarations come from the \Compose* examples~\cite{Composestar}, for each of them is noted in the listing from which example they come. 
+In \autoref{lst::ARM:con:example1} five examples of condition declarations are given. 
+Four of these declarations come from the \Compose* examples~\cite{Composestar}, for each of them is noted in the listing from which example they come. 
 The first one shows the usage of an internal, the second one shows the usage of an external.
 The third and fourth examples show the use of static methods.
 The last example does not come from the example directory, there is a design technical issue why this option is not much used.

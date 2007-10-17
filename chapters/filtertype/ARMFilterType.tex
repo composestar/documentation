@@ -8,33 +8,39 @@ are of the arguments.
 \section*{Syntax}
 \begin{lstlisting}[caption = {Filter type syntax}, label = lst::ARM:filtype:syntax,
 style = listing, language = ebnf, float = tpb]
-Filter ::= FilterName `:' FilterType [`(' ArgumentList ')'] `=' '{' FilterElements '}'
-FilterType ::= Identifier
+Filter = Identifier ':' FilterType ['(' [ArgumentList] ')'] '=' '{' FilterElements '}';
+FilterType = Identifier;
 \end{lstlisting}
 As demonstrated in \autoref{lst::ARM:filtype:syntax}, a filter type it must be a predefined filter type or custom defined one. It is not possible
 to overwrite the predefined filters, so a dispatch filter always behaves the same.
 
-\section*{Semantics}
-The four filter types that are currently in use are described below:
+\section{Semantics}
+There are a couple of builtin filter types:
 \begin{description}[style=nextline,noitemsep]
-\item [Dispatch] If the message is accepted, then the target and the selector of the message get substituted with
-the values of the target and selector of the substitution part. If the value is a wildcard (``*''), then the
-original value remains unchanged. After that, the message is dispatched to the target of the message; this can be
-either the old target or a new one. In the situation that the target is the old value, the message starts again at the begin of the
-input filter set. A dispatch to inner goes directly to the inner object. Dispatch can only be used for input filters;
-\item [Send] The send filter is the dispatch filter for the output filters. When the filter matches the target and the
-selector gets substituted with the values that are in the substitution part;
-\item [Error] An error filter raises an exception when it rejects. It ignores the substitution part;
+\item [Dispatch] If the message is accepted, then the target and the selector of the message get substituted with the values of the target and selector of the substitution part. 
+If the value is a wildcard (``*''), then theoriginal value remains unchanged. 
+After that, the message is dispatched to the target of the message; this can be either the old target or a new one. 
+In the situation that the target is the old value, the message starts again at the begin of the input filter set. 
+A dispatch to inner goes directly to the inner object. 
+Dispatch can only be used for input filters;
+\item [Send] The send filter is the dispatch filter for the output filters. 
+When the filter matches the target and the selector gets substituted with the values that are in the substitution part;
+\item [Error] An error filter raises an exception when it rejects. 
+It ignores the substitution part;
 \item [Meta] When a meta filters matches it reifies the current message and add it as an argument of a new message.
 This new message is sent to the object and method declared in the
-substitution part. This method must have a single parameter of the type \emph{ReifiedMessage}. In this method it is
-possible to alter the message and to let it resume or to send it back.
+substitution part. This method must have a single parameter of the type \emph{ReifiedMessage}. 
+In this method it is possible to alter the message and to let it resume or to send it back.
+\item[Before] This filter will call the method defined by the substitution part when the current message matches.
+After this the next filter will be evaluation, thus this filter type does not change the flow of the message.
+\item[After] This filter is similar to the \emph{before} filter, except that it will execute the method when the message returns from execution.
+For example an \emph{error} filter could disrupt the behavior of this filter because the error filter prevents the execution of the message this filter matches on.
 \end{description}
 
 A custom filter gets extended from a meta filter and it is possible to define how it handles the different parts
 and values.
 
-\section*{Examples}
+\section{Examples}
 \begin{lstlisting}[caption={Some different filter types },label=lst::ARM:ft:example1,style=listing,language=ComposeStar,float=[tpb]]
 ...
 inputfilters
@@ -44,8 +50,8 @@ inputfilters
   e : Error = {[*.*]}
 }
 \end{lstlisting}
-In \autoref{lst::ARM:ft:example1} four different filters are used, the first and last filter declaration use predefined filter types, the
-other two use custom filter types. An example of how to write a custom filter type is demonstrated in the Rot13 example~\cite{Composestar}.
+In \autoref{lst::ARM:ft:example1} four different filters are used, the first and last filter declaration use predefined filter types, the other two use custom filter types. 
+An example of how to write a custom filter type is demonstrated in the Rot13 example~\cite{Composestar}.
 It is possible to initialize a custom filter with the filter parameters.
 
 \section*{Legality Rules}
@@ -56,22 +62,32 @@ It is possible to initialize a custom filter with the filter parameters.
 
 %\faq{}
 \comments{
-It is not possible to redefine predefined filter types, this is done to keep the language understandable for a user
-because in this way a dispatch filter will always behave like a dispatch filter.
+It is not possible to redefine predefined filter types, this is done to keep the language understandable for a user because in this way a dispatch filter will always behave like a dispatch filter.
 
-The advantage of predefined filters is that we know what they do and therefore we can do a static analysis on the
-flow of a filter set. With a meta filter we do no longer know what happens, because the resume and return commandos of a message
-are called in the implementation. On the other hand, predefined filter types are only a selection of possibilities and the meta filter is a necessary type for creating other non-predefined behavior.
-So it is a constant trade-off between being all flexible by only using custom filters or
-just trying to add predefined or custom defined filters for every situation, just to have filter sets where you can reason about.
-Therefore we keep the current set of predefined filter types,
-however there is room for some more predefined filter types.
+The advantage of predefined filters is that we know what they do and therefore we can do a static analysis on the flow of a filter set. 
+With a meta filter we do no longer know what happens, because the resume and return commands of a message are called in the implementation. 
+On the other hand, predefined filter types are only a selection of possibilities and the meta filter is a necessary type for creating other non-predefined behavior.
+So it is a constant trade-off between being all flexible by only using custom filters or just trying to add predefined or custom defined filters for every situation, just to have filter sets where you can reason about.
+Therefore we keep the current set of predefined filter types, however there is room for some more predefined filter types.
+
+\para{Runtime vs Inliner}
+Not all filters mentioned previously are available for all ports.
+The ports that use the runtime (\Compose*[DotNet] and \Compose*[Java]) do not support the \emph{before} and \emph{after} filters.
+However, this functionality can be implemented using a \emph{meta} filter.
+
+The ports that use the inliner (StarLight) do not support the \emph{meta} filter.
+The meta filter can be partially simulated using custom filters.
+
+\para{Parameters}
+Filter parameters, as shown in \autoref{lst::ARM:ft:example1}, are currently not implemented.
+\Compose* will accept its usage, but after that they are ignored.
+
 }
-\dotnetcomment{
-Other predefined filter types have already been described in various publications on \Compose*, however these are currently not implemented. This are the \emph{wait}~\cite{bergmans:phd94} and \emph{real-time}
-filters which date back before \Compose* and the \emph{prepend} and \emph{append} filters~\cite{Minnen2006}.
-}
+%\dotnetcomment{}
 %\javacomment{}
 %\ccomment{}
 %\pending{}
-%\furtherreading{}
+
+\furtherreading{
+More information about the filter and message behavior can be found in \cite{DeRoo2007} and \cite{Hendriks2007}.
+}

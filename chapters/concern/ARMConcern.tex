@@ -8,13 +8,13 @@ The filter modules are superimposed on classes by the filter module binding fiel
 The implementation part contains language dependent code of the concern.
 
 \section{Syntax}
-\begin{lstlisting}[caption = {Concern syntax}, label = lst::ARM:concern:syntax, style = listing, language = ebnf, float = tpb]
-Concern ::= `concern' Identifier [ConcernParameters] [`in' Namespace] ConcernBlock;
-ConcernParameters ::= `(' Identifier ':' Type {`,' Identifier ':' Type } `)';
-Type ::= Fqn;
-Fqn ::= Identifier {`.' Identifier};
-Namespace ::= Fqn;
-ConcernBlock ::= `{' {FilterModule} [SuperImposition] [Implementation] `}';
+\begin{lstlisting}[caption = {Concern syntax}, label = lst::ARM:concern:syntax, style = listing, language = {ebnf}, float = tpb]
+Concern = 'concern' Identifier [ConcernParameters] ['in' Namespace] ConcernBlock;
+ConcernParameters = '(' Identifier ':' Type {',' Identifier ':' Type } ')';
+Type = Fqn;
+Fqn = Identifier {'.' Identifier};
+Namespace = Fqn;
+ConcernBlock = '{' {FilterModule} [SuperImposition] [Implementation] '}';
 \end{lstlisting}
 The syntax for a concern definition is shown in \autoref{lst::ARM:concern:syntax}. 
 A concern name must be unique for the namespace where it is declared.

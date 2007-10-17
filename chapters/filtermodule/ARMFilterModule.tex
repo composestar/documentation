@@ -6,9 +6,7 @@ A filter module is superimposed on an object and the filter module can extend th
 
 \section{Syntax}
 \begin{lstlisting}[caption = {Filter module syntax}, label = lst::ARM:fm:syntax, style = listing, language = ebnf, float = tpb]
-FilterModule ::= `filtermodule' Identifier [FilterModuleParameters] `{'
-                  [Internals] [Externals] [Conditions]
-                  [InputFilters] [OutputFilters] `}';
+FilterModule = 'filtermodule' Identifier [FilterModuleParameters] '{' [Internals] [Externals] [Conditions] [InputFilters] [OutputFilters] '}';
 \end{lstlisting}
 A filter module has a unique identifier in a concern; the uniqueness is defined over the name and not the name in combination with the parameters.
 The  ordering of the blocks of a filter module is fixed, thus it is only possible to use them in the ordering as shown in the syntax of \autoref{lst::ARM:fm:syntax}. 

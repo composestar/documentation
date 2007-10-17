@@ -6,61 +6,69 @@ Both the input filters and output filters have the same syntax and therefore we 
 A filter has five parts: the filter identifier, the filter type, the condition part, the matching part, and the substitution part. These parts are shown below:
 
 \begin{center}
-$\overbrace{stalker\_filter}^{identifier}:\overbrace{Dispatch}^{filter~type}~=~\{\overbrace{!pacmanIsEvil}^{condition~part}
-=>\overbrace{[*.getNextMove]}^{matching~part}~\overbrace{stalk\_strategy.getNextMove}^{substitution~part}~\}$
+$\overbrace{stalker\_filter}^{identifier}~:~\overbrace{Dispatch}^{filter~type}~=~\{~\overbrace{!pacmanIsEvil}^{condition~part} 
+
+\overbrace{=>}^{matching~operator}~\overbrace{[*.getNextMove]}^{matching~part}~\overbrace{stalk\_strategy.getNextMove}^{substitution~part}~\}$
 \end{center}
 
-Except for the filter identifier they all are separately described in the reference manual. In this chapter we look to how these parts work together and how sequential filters behave.
+Except for the filter identifier they all are separately described in the reference manual. 
+In this chapter we look to how these parts work together and how sequential filters behave.
 
-\section*{Syntax} %\label{insert_label}
+\section{Syntax} %\label{insert_label}
 \begin{lstlisting}[caption = {Filter syntax}, label = lst::ARM:fil:syntax,
 style = listing, language = ebnf, float = tpb]
-FilterModule ::= `filtermodule' FilterModuleName [FilterModuleParameters] `{'
-                  [Internals] [Externals] [Conditions]
-                  [InputFilters] [OutputFilters] `}'
-Inputfilters ::= `inputfilters' FilterSet
-Outputfilters ::= `outputfilters' FilterSet
 
-FilterSet ::= Filter (FilterOperator Filter)*
-FilterOperator ::= `;'
-Filter ::= FilterName `:' FilterType [`(' ArgumentList ')'] `=' 
-           `{' FilterElements `}'
-FilterElements ::= FilterElement (ElementCompositionOperator FilterElement)*
-ElementCompositionOperator ::= ','
+FilterModule = 'filtermodule' Identifier [FilterModuleParameters] '{' [Internals] [Externals] [Conditions] [InputFilters] [OutputFilters] '}';
+InputFilters = 'inputfilters' FilterSet;
+OutputFilters = 'outputfilters' FilterSet;
 
-FilterElement ::= [ORExpression ConditionOperator] MessagePattern
-ORExpression ::= ANDExpression [`|' ANDExpression]
-ANDExpression ::= NOTExpression [`&' NOTExpression]
-NOTExpression ::= [!] (ConditionLiteral | `('ORExpression`)')
-ConditionLiteral ::= ConditionName | `True'| `False'
-ConditionOperator ::= `=>'| `~>'
-MessagePattern ::= Matching [SubstitutionPart]
-                   | MatchPattern
-                   | `{' Matching (`,' Matching)* `}' [SubstitutionPart] 
-Matching ::= SignatureMatching | NameMatching
-SignatureMatching ::= `<' MatchPattern `>'
-NameMatching ::= `[' MatchPattern `]' | Quote MatchPattern Quote
-SubstitutionPart ::= [Target `.'] Selector
-MatchPattern ::= [Target `.'] Selector
+FilterSet = Filter {FilterOperator Filter};
+FilterOperator = ';';
+Filter = Identifier ':' FilterType ['(' [ArgumentList] ')'] '=' '{' FilterElements '}';
+FilterType = Identifier;
+FilterElements = FilterElement {FilterElementOperator FilterElement};
+FilterElementOperator = ',';
+
+FilterElement = [ConditionExpression MatchingOperator] MatchingPatternSet;
+
+ConditionExpression = AndExpression ['|' ConditionExpression];
+AndExpression = UnaryExpression ['&' AndExpression];
+UnaryExpression = ['!'] ( Operand | '(' ConditionExpression ')' );
+Operand = Identifier | 'True' | 'False';
+
+MatchingOperator = '=>' | '~>';
+MatchingPatternSet = MatchingPart [SubstitutionPart];
+MatchingPart = '{' MatchingPattern {',' MatchingPattern} '}' | MatchingPattern;
+MatchingPattern = '[' TargetSelector ']' | '<' TargetSelector '>';
+SubstitutionPart = TargetSelector;
+TargetSelector = [Target '.'] Selector;
+Target = '*' |IdentifierOrParameter;
+Selector = '*' | IdentifierOrParameter | ParameterList;
 \end{lstlisting}
 
 The syntax in \autoref{lst::ARM:fil:syntax} covers the full syntax of the filter, so it also covers the condition, matching, and substitution part.
 The filter type contains the type of the filter, this can be a predefined one (currently Dispatch, Meta, Send, or Error) or a custom type.
-A filter element
-contains an optional condition part and
-one of more message patterns. The conditional part contains a logical statement, possibly containing logical operators in combination with conditions and boolean values. The message pattern contains a name or signature matching and an optional substitution part. The filters are separated with a filter operator. Currently the only operator is the ``;''.
+A filter element contains an optional condition and operator part and a matching pattern set.
+The conditional part contains a logical statement, possibly containing logical operators in combination with conditions and boolean values. 
+The message pattern contains a name or signature matching and an optional substitution part. 
+The filters are separated with a filter operator. 
+Currently the only operator is the ``;''.
 
-\section*{Semantics}
-As mentioned earlier, a filter can consist of five parts. The filter identifier can be used to get the corresponding filter,
-like other filter module elements. The filter element is the combination of condition, matching, and substitution part.
-How the filter element behaves, depends on the filter type. If the condition and matching part matches then the
-substitution part gets executed.
+\section{Semantics}
+As mentioned earlier, a filter can consist of five parts. 
+The filter identifier can be used to get the corresponding filter, like other filter module elements. 
+The filter element is the combination of condition, matching operator, matching, and substitution part.
+How the filter element behaves, depends on the filter type. 
+If the condition and matching part matches then the substitution part gets executed.
 
-Filters are separated by a ``;'', this operator means that if the filter does not match, the next filter in the filter module will be evaluated. After the last superimposed filter module a \emph{default dispatch filter} to the \emph{inner object} is created. This means that the last filter that is declared in a filter module is always followed by another filter, be it from the next filter module or it is the default dispatch filter. To keep the user from placing another filter operator between these couplings, it is not possible to use the ``;'' after the last filter in a filter module.%b$
+Filters are separated by a ``;'', this operator means that if the filter does not match, the next filter in the filter module will be evaluated. 
+After the last superimposed filter module a \emph{default dispatch filter} to the \emph{inner object} is created. 
+This means that the last filter that is declared in a filter module is always followed by another filter, be it from the next filter module or it is the default dispatch filter. 
+To keep the user from placing another filter operator between these couplings, it is not possible to use the ``;'' after the last filter in a filter module.
 
-Input filters reason about messages going to the object and output filters on the messages that are sent from an object. The return call of a method is not considered a message.
+Input filters reason about messages going to the object and output filters on the messages that are sent from an object. 
 
-\section*{Examples}
+\section{Examples}
 \begin{lstlisting}[caption = {Dynamic strategy filter module in Pacman}, label=lst::arm::fil:example1,style = listing, language = ComposeStar,float=[tpb]]
 filtermodule dynamicstrategy{
   internals
@@ -75,14 +83,16 @@ filtermodule dynamicstrategy{
 }
 \end{lstlisting}
 
-When we look at the dynamic strategy concern of Pacman, \autoref{lst::arm::fil:example1}, we have two filters: stalker filter and flee filter. Both filters are of the filter type dispatch, this
-means that if the condition part and matching part matches, the target and selector gets substituted with the values in the substitution part and the message is then dispatched to the target of the changed message.
+When we look at the dynamic strategy concern of Pacman, \autoref{lst::arm::fil:example1}, we have two filters: stalker filter and flee filter. 
+Both filters are of the filter type dispatch, this means that if the condition part and matching part matches, the target and selector gets substituted with the values in the substitution part and the message is then dispatched to the target of the changed message.
 
 The combination of the two filters means that the stalker filter is evaluated first and if it does not match then the next filter is being evaluated, this is the flee filter in this situation.
-The matching is based on the condition part, in the example this is the condition whether Pacman is evil,
-and the matching part, which filters on messages with ``getNextMove'' as selector value.
-When a filter matches, the target and selector of the message gets changed with the values of the substitution part. What happens with the message then depends on the filter type.
-To specify how sequential filters behave there is an filter operator placed between the filters. Currently only the ``;'' is used and it means ``if not then''.  It is not possible to place an operator after the last filter in a filter set.
+The matching is based on the condition part, in the example this is the condition whether Pacman is evil, and the matching part, which filters on messages with ``getNextMove'' as selector value.
+When a filter matches, the target and selector of the message gets changed with the values of the substitution part. 
+What happens with the message then depends on the filter type.
+To specify how sequential filters behave there is an filter operator placed between the filters. 
+Currently only the ``;'' is used and it means ``if not then''.  
+It is not possible to place an operator after the last filter in a filter set.
 
 \begin{lstlisting}[caption = {Custom logging filter module}, label=lst::arm::fil:example2,style = listing, language = ComposeStar,float=[tpb]]
 filtermodule logger(??inputMethods, ??outputMethods){
@@ -97,10 +107,10 @@ filtermodule logger(??inputMethods, ??outputMethods){
 }
 \end{lstlisting}
 
-An example on how you can place input and output filters in one filter module is demonstrated in \autoref{lst::arm::fil:example2}. In the example the working of both filters is the same, if the condition
-matches and the selector is in the set of the given methods, then the message getss wrapped up and is send to the external object and to be more precise to the method \lstinline|log|.
+An example on how you can place input and output filters in one filter module is demonstrated in \autoref{lst::arm::fil:example2}. 
+In the example the working of both filters is the same, if the condition matches and the selector is in the set of the given methods, then the message getss wrapped up and is send to the external object and to be more precise to the method \lstinline|log|.
 
-\section*{Legality Rules}
+\section{Legality Rules}
 \begin{itemize}[noitemsep]
 \item The identifier of a filter must be unique for the filter module where it is declared in, so it is not possible to have the same name for an input and output filter;
 \item Filters are separated by a ``;'', which is called the composition operator;
@@ -111,11 +121,14 @@ matches and the selector is in the set of the given methods, then the message ge
 \para{FAQ}
 \question{Why is it not possible to place a ``;'' after the last filter?}
 \answer{The ``;'' between filters is often mistaken for a terminator symbol, but it actually says something
-about the sequential ordering of filters. The last filter in a filter module is always followed by the filter of the next filter module or the default dispatch filter. It would be incorrect to let the user have a say about that coupling and therefore it is not possible to place a ``;'' after the last filter.}
+about the sequential ordering of filters. 
+The last filter in a filter module is always followed by the filter of the next filter module or the default dispatch filter. 
+It would be incorrect to let the user have a say about that coupling and therefore it is not possible to place a ``;'' after the last filter.}
 
 \para{Hints}
 To keep a message from being evaluated by the default dispatch filter it is possible to place a last filter that catches all
-messages. This could be an error or a dispatch filter.
+messages. 
+This could be an error or a dispatch filter.
 }
 \comments{
 \input{chapters/filter/ARMFilterComment}

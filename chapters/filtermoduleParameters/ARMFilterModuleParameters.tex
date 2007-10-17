@@ -13,13 +13,11 @@ After you have declared the parameters you can use them in the filter module. Th
 
 \begin{lstlisting}[caption = {Parameter declaration syntax}, label = lst::ARM:fmp:syntax,
 style = listing, language = ebnf, float = tpb]
-FilterModule ::= `filtermodule' Identifier [FilterModuleParameters] `{'
-                  [Internals] [Externals] [Conditions]
-                  [InputFilters] [OutputFilters] `}';                                    
-FilterModuleParameters ::= `(' ParameterDefinition {',' ParameterDefinition} `)';
-ParameterDefinition ::= Parameter | ParameterList;
-Parameter ::= `?' Identifier;
-ParameterList ::= `??' Identifier;
+FilterModule = 'filtermodule' Identifier [FilterModuleParameters] '{' [Internals] [Externals] [Conditions] [InputFilters] [OutputFilters] '}';                                    
+FilterModuleParameters = '(' ParameterDefinition {',' ParameterDefinition} ')';
+ParameterDefinition = Parameter | ParameterList;
+Parameter = '?' Identifier;
+ParameterList = '??' Identifier;
 \end{lstlisting}
 
 You can use a single parameter to parameterize the following elements of a filter module:%

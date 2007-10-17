@@ -2,26 +2,23 @@
 \nomenclature{fqn}{Fully Qualified Name}
 \chapter{Externals}
 Externals are objects that are instantiated outside a filter module.
-They can be instances which are used in multiple places in the application, for instance
-as a Logger object, or they are shared between multiple filter module instances.
+They can be instances which are used in multiple places in the application, for instance as a Logger object, or they are shared between multiple filter module instances.
 
-\section*{Syntax}
+\section{Syntax}
 \begin{lstlisting}[caption = {Externals syntax}, label = lst::ARM:ext:syntax,
 style = listing, language = ebnf, float = tpb]
-FilterModule ::= `filtermodule' FilterModuleName [FilterModuleParameters] `{'
-                  [Internals] [Externals] [Conditions]
-                  [InputFilters] [OutputFilters] `}'
-Externals ::= `externals' (Identifier `:' Type 
-              `=' InitialisationExpression `(' [ ArgumentList ] `)' `;')* 
-InitialisationExpression ::= MethodReference                
+FilterModule = 'filtermodule' FilterModuleName [FilterModuleParameters] '{' [Internals] [Externals] [Conditions] [InputFilters] [OutputFilters] '}';
+Externals = 'externals' {Identifier ':' Type ['=' InitialisationExpression] ';'};
+InitialisationExpression = Fqn '(' [ArgumentList] ')';
+ArgumentList = IdentifierOrFMParam {',' IdentifierOrFMParam};
+IdentifierOrParameter = Identifier | Parameter;
 \end{lstlisting}
-As we can see in \autoref{lst::ARM:ext:syntax}, we can split up the external in three parts: the identifiers, type, and the initialization. The parts are
-separated with syntactic sugar, between the identifiers and type there is a colon (`:') and
-between the type and initialization an equation mark (`=').
+As we can see in \autoref{lst::ARM:ext:syntax}, we can split up the external in three parts: the identifier, type, and the optional initialization expression.
 The initialization expression is the method that returns the reference to the external object.
 It is possible to use arguments in the initialization expression.
+Without an initialization expression the external will refer to a static object.
 
-\section*{Semantics}
+\section{Semantics}
 \begin{figure}[tpb]
 	\centering
 	\includegraphics[style=thirdheight]{ARM-externalInitialization}
@@ -30,13 +27,12 @@ It is possible to use arguments in the initialization expression.
 \end{figure}
 If we take \autoref{lst::arm::ext:example1} and look how the instances are created, we get \autoref{fig::arm::ext:schema2}.
 Every instance of the filter module \lstinline!dynamicscoring! gets a reference to the common object Score.
-If we draw a schema of \autoref{lst::ARM:ext:example2} then we get a different picture, because every instance of delegatePlanning gets a pointer to one of the two shared externals.
+If we draw a schema of \autoref{lst::ARM:ext:example2} then we get a different picture, because every instance of \emph{delegatePlanning} gets a pointer to one of the two shared externals.
 
-Getting a shared object can be done on several ways, however you must write a construct that holds the objects so that
-you can select them, thus you should keep a collection of externals. If there is only one instance of an external, then
-the Singleton pattern is a good pattern to apply.
+Getting a shared object can be done on several ways, however you must write a construct that holds the objects so that you can select them, thus you should keep a collection of externals. 
+If there is only one instance of an external, then the \emph{Singleton} pattern is a good pattern to apply.
 
-\section*{Examples}
+\section{Examples}
 \begin{lstlisting}[caption = {Dynamic scoring filter module from the Pacman example}, label = lst::arm::ext:example1,
 style = listing, language = ComposeStar, float=tpb]
 filtermodule dynamicscoring{
@@ -72,24 +68,23 @@ superimposition{
     selB <- delegatePlanning(Secretary());
 }
 \end{lstlisting}
-In the Pacman example, the filter module \lstinline!dynamicscoring! uses an external
-to keep track of the score (\autoref{lst::arm::ext:example1}). For this concern it means that
-every instance of the classes \lstinline!pacman.World!, \lstinline!pacman.Game!,
-and \lstinline!pacman.Main! gets its own
-instance of the filter module dynamicscoring and each of the instances of dynamicscoring has
-a reference to the same instance of \lstinline!pacman.Score!. The construction with scoring in Pacman is
-known as the Singleton pattern \cite{Gamma95}. It is also possible to get constructions without the Singleton pattern as demonstrated in \autoref{lst::ARM:ext:example2}, where an object is used as parameter and is assigned through the filter module binding.
+In the Pacman example, the filter module \lstinline!dynamicscoring! uses an external to keep track of the score (\autoref{lst::arm::ext:example1}). 
+For this concern it means that every instance of the classes \lstinline!pacman.World!, \lstinline!pacman.Game!,
+and \lstinline!pacman.Main! gets its own instance of the filter module \emph{dynamicscoring} and each of the instances of \emph{dynamicscoring} has a reference to the same instance of \lstinline!pacman.Score!. 
+The construction with scoring in Pacman is known as the Singleton pattern \cite{Gamma95}. 
+It is also possible to get constructions without the Singleton pattern as demonstrated in \autoref{lst::ARM:ext:example2}, where an object is used as parameter and is assigned through the filter module binding.
 
-\section*{Legality rules}
+\section{Legality rules}
 \begin{itemize}[noitemsep]
 \item The identifier of an external must be unique for the filter module where it is declared in;
 \item The type must be a fully qualified name of a class and this class must exist;
 \item The initialization expression must point to a valid method, this often means that you use a static method.
+\item Without an initialization expression the external will be a reference to a static object rather than an instance.
 \end{itemize}
 
 \faq{\input{chapters/externals/ARMExternalsFAQ}}
 \comments{\input{chapters/externals/ARMExternalsComments}}
-\dotnetcomment{\input{chapters/externals/ARMExternalsCommentsDotNET}}
+%\dotnetcomment{}
 %\javacomment{}
 %\ccomment{}
 \pending{\input{chapters/externals/ARMExternalsPending}}

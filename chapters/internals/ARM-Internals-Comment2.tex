@@ -9,7 +9,7 @@ When this is realized then the syntax can change to the one given in \autoref{ls
 \begin{lstlisting}[caption = {Proposed internal syntax}, label = lst::ARM:int:syntax2,
 style = listing, language = ebnf]
 Internal ::= Identifier {',' Identifier} ':' Type 
-              [`=' Fqn `(' FilterModuleParameters `)']
+              ['=' Fqn '(' FilterModuleParameters ')']
 \end{lstlisting}
 Because we already use default constructors, we already have the mapping from the language independent declaration to language specific constructor calls, thus we do not have to work them out for adding arguments in a constructor.
 

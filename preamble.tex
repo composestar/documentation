@@ -33,14 +33,14 @@
 
 % Define grammar language in listings.
 \lstdefinelanguage{ebnf}{%
-  morekeywords={::=, (, ), *, [, ], +},%
+  %otherkeywords={=, (, ), [, ], \{, \}, -, ;},%
   literate={~}{$\sim$}1,
   sensitive=true,%
 	morestring=[b]",%
 	morestring=[b]',%
-  morecomment=[l]{//},%
-  morecomment=[s]{/*}{*/}%
-}
+  morecomment=[s][\color{magenta}]{?}{?},%
+  morecomment=[s]{(*}{*)}%
+}[keywords,comments,strings]
 \lstdefinelanguage{antlr}{%
   morekeywords={:, (, ), *, [, ], +, ?, !},%
   literate={~}{$\sim$}1,

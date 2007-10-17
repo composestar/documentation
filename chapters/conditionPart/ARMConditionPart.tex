@@ -1,42 +1,40 @@
 % Condition part ARM entry. By Dirk Doornenbal. V1.5 2 mei 2006
-\chapter{Condition Part} \label{chapter:conditionpart}
+\chapter{Condition Expression} \label{chapter:conditionpart}
 The condition part of a filter contains the conditions and operators which say something of the matching part, to reason whether a filter is accepted or not. 
-The used methods must be first declared in the conditions block of a filter module. The logical operators are the basic set of \emph{and}, \emph{or}, and \emph{not} added with
-two operators to denote ``if matches'' (\lstinline[language=Composestar]|=>|) and ``if not matches'' (\lstinline[language=Composestar]|~>|)., which are placed in front of the matching part.
+The used methods must be first declared in the conditions block of a filter module. 
+The logical operators are the basic set of \emph{and}, \emph{or}, and \emph{not} added with two operators to denote.
 
-\section*{Syntax}
+\section{Syntax}
 The syntax of the condition part, as demonstrated in \autoref{lst::ARM:cp:syntax}, follows the standard way to
-program a set of AND (\lstinline|&|), OR (\lstinline$|$), and NOT(\lstinline|!|) operators. The precedence is that the NOT is executed first, then the AND and the OR. This means
-that \emph{A AND B OR C} is actually \emph{(A AND B) OR C}. The chosen precedence is the commonly used one.
+program a set of AND (\lstinline|&|), OR (\lstinline$|$), and NOT(\lstinline|!|) operators. 
+The precedence is that the NOT is executed first, then the AND and the OR.
+This means that \emph{A AND B OR C} is actually \emph{(A AND B) OR C}. 
+The chosen precedence is the commonly used one.
+Parenthesis can be used to group subexpressions.
 
 \begin{lstlisting}[caption={Filter condition part syntax},label=lst::ARM:cp:syntax,style=listing,language=ebnf,float=tpb]
-FilterElement = [ORExpression ConditionOperator] MessagePattern
-ORExpression = ANDExpression [`|' ANDExpression]
-ANDExpression = NOTExpression [`&' NOTExpression]
-NOTExpression = [!] (ConditionLiteral | `('ORExpression`)')
-ConditionLiteral = ConditionName | `True'| `False'
-ConditionOperator = `=>'| `~>'
+ConditionExpression = AndExpression ['|' ConditionExpression];
+AndExpression = UnaryExpression ['&' AndExpression];
+UnaryExpression = ['!'] ( Operand | '(' ConditionExpression ')' );
+Operand = Identifier | 'True' | 'False';
 \end{lstlisting}
 
-The \emph{ConditionLiteral} can be either a condition name, which must be declared in the condition block of a filter module,
-or the predefined conditions ``True'' or ``False''. It does not matter whether the keywords are written like this or without
-capitals. If there is an expression then there also must be a \emph{ConditionOperator}, there are two options for this
-operator: \lstinline[language=Composestar]|=>| and \lstinline[language=Composestar]|~>|.
+The \emph{Operand} can be either a condition name, which must be declared in the condition block of a filter module, or one of the constants ``True'' or ``False''. 
+The constants are case insensitive.
 
-\section*{Semantics}
+\section{Semantics}
 In the condition part it is only possible to use the boolean values \emph{true} and \emph{false} or conditions that are declared in the conditions block of a filter module.
 This means that the number of possible syntax constructs is small.
-The meaning of the logical operators is the same as the usual meaning in most programming languages. The condition operator
-does say something on the message part and not as it might suggest on the condition part. The \lstinline|=>| operator
-provides a true if the message part matches. The other operator, \lstinline[language=Composestar]|~>|,
-gives a true when the message part does not match.
+The meaning of the logical operators is the same as the usual meaning in most programming languages.
+The condition expression is evaluated before the message is matched to the matching part.
+This means that the message will not be matched when the result of the expression is false. 
 
-The condition part is optional; however when it is left out then the syntactic sugar places a \lstinline|True =>|
-in the filter.
+The condition part is optional, when it is omitted the constant expression \lstinline|True| is used.
 
 \section*{Examples}
-In the Pacman example of \cite{Composestar} we have already seen the filter demonstrated in \autoref{lst::armcp:example1}. In that example the method \emph{pacmanIsEvil}
-is checked in order to determine how the ghosts must behave. So when Pacman is not evil it only depends on the matching part whether the filter matches.
+In the Pacman example of \cite{Composestar} we have already seen the filter demonstrated in \autoref{lst::armcp:example1}. 
+In that example the method \emph{pacmanIsEvil} is checked in order to determine how the ghosts must behave. 
+So when Pacman is not evil it only depends on the matching part whether the filter matches.
 
 \begin{lstlisting}[caption={The dymanic strategy filtermodule}, label=lst::armcp:example1,style=listing,language=Composestar,float=[tpb]]
 conditions
@@ -47,11 +45,9 @@ inputfilters
   flee_filter : Dispatch = {[*.getNextMove] flee_strategy.getNextMove}
 \end{lstlisting}
 
-Some examples of condition parts are given in \autoref{lst::armcp:exampl2}. We see that d1 (on line five) depends on the condition isBlue whether the message will pass.
-The \lstinline[language=Composestar]|~>| means exclusion so it will match if the message does not
-match with the matching part of the filter. Thus
-filter d2 (on line six) will never match, because the matching part will always match.
-Filter d3 (on line seven) shows a combination of operators and values.
+Some examples of condition parts are given in \autoref{lst::armcp:exampl2}. 
+We see that d1 (on line five) depends on the condition isBlue whether the message will be accepted.
+Filter d2 (on line six) shows a combination of operators and values.
 
 \begin{lstlisting}[caption={Possible condition parts}, label=lst::armcp:exampl2,style=listing,language=Composestar,float=[tpb]]
 conditions
@@ -59,21 +55,19 @@ conditions
   isMorning : inner.isMorning();
 inputfilters
   d1 : Dispatch = {!isBlue => *.*};
-  d2 : Dispatch = {isBlue ~> *.*};
-  d3 : Dispatch = {(isBlue | isMorning) & True => *.*}
+  d2 : Dispatch = {(isBlue | isMorning) & True => *.*}
 \end{lstlisting}
 
-\section*{Legality rules}
+\section{Legality rules}
 \begin{itemize}[noitemsep]
 \item A condition name must be declared in the condition block of the same filter module;
-\item The keywords true and false are written as ``True'', ``true'', ``False'', and ``false'', anything else, also with different
-capital letters, is considered a condition name.
+\item The keywords true and false are case insensitive.
 \end{itemize}
 
 \faq{
 \para{Hints}
-Whereas the condition part is optional, the matching part is not. It is however easy to let only
-a condition part determine the outcome of a filter, with the matching \lstinline|[*.*]| every message matches and it only depends on the conditions whether a message is accepted.
+Whereas the condition part is optional, the matching part is not. 
+It is however easy to let only a condition part determine the outcome of a filter, with the matching \lstinline|[*.*]| every message matches and it only depends on the conditions whether a message is accepted.
 }
 
 \comments{\input{chapters/conditionPart/ARMConditionPartComments}}
