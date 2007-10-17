@@ -1,11 +1,11 @@
 \para{Language Independence}
-\begin{lstlisting}[caption = {A filter module with a primitive value}, label = lst::ARM:int:example3,
+\begin{lstlisting}[caption = {A hypothetical filter module with a primitive value}, label = lst::ARM:int:example3,
 style = listing, language =ComposeStar, float = tpb]
 filtermodule rollbackcounter{
   internals
     counter : int;
   inputfilters
-    e : Error = {(if counter > 10) => [*.*]};
+    e : Error = {(counter > 10) => [*.*]};
     m : Meta = {[*.rollback] counter++;}
 }  
 \end{lstlisting}
@@ -15,65 +15,44 @@ filtermodule rollbackcounter{
   internals
     counter : Counter; // extends of Integer
   conditions
-    greaterThenTen : counter.isGreaterThenTen();
+    greaterThanTen : counter.isGreaterThanTen();
   inputfilters
-    e : Error = {greaterThenTen => [*.*]};
+    e : Error = {greaterThanTen => [*.*]};
     m : Append = {[*.rollback] counter.raiseCounter}
 }
 \end{lstlisting}
-It is not possible to use primitive values, like int, char, and bool, as internals and externals,
-this is a result from the language independence
-we want to have in \Compose*. 
+It is not possible to use primitive values, like int, char, and bool, as internals and externals,this is a result from the language independence we want to have in \Compose*. 
 This means that only objects can be used as internals and externals.
-Object references are language independent and thus usable in
-a language independent environment.
-The usage of primitive values in the language
-would break language independence because the primitives have different ranges in each 
-language\footnote{For bool (or boolean) this is not a real problem, because generally it has only
-two values: True and False. However, if we would find (or create) a language that uses fuzzy
-values for its booleans then we have the same range problem with booleans as with, for example, integers.
-In such scenario the question is whether the fuzzy range is from one to zero or from hundred to zero?}.
-There are ideas to introduce a set of primitive values for usage in the filter module,
-but these ideas always get stuck on the fact that you need to set a range for the primitives
-and they often conflict with the requirement to keep the language as concise as possible.
-An example of a rejected solution is the subtyping of integer values like in the programming language Ada~\cite{Ada95}. With Ada it is possible to create a subtype of integer by declaring
-it as a subtype of integer and by setting a range, for instance from one to ten.
+Object references are language independent and thus usable in a language independent environment.
+The usage of primitive values in the language would break language independence because the primitives have different semantics in each language\footnote{For boolean this is not a real problem, because generally it has only two values: True and False. However, if we would find (or create) a language that uses fuzzy values for its booleans then we have the same range problem with booleans as with, for example, integers. In such scenario the question is whether the fuzzy range is from one to zero or from hundred to zero?}.
+There are ideas to introduce a set of primitive values for usage in the filter module, but these ideas always get stuck on the fact that you need to define semantics for the primitives and they often conflict with the requirement to keep the language as concise as possible.
+An example of a rejected solution is the subtyping of integer values like in the programming language Ada~\cite{Ada95}. 
+With Ada it is possible to create a subtype of integer by declaring it as a subtype of integer and by setting a range, for instance from one to ten.
 A possible Ada type declaration is \lstinline|type OwnInteger is Integer range 0 .. 256;|
 
-If we look on how we would put a primitive into action
-we can see that we can do the same with an object. For example, if we take a filter module that allows
-ten times the call \lstinline!rollback! and gives an error the eleventh time, then the filter module
-does need a counter to keep track on how many times the call \lstinline!rollback! has been send to that
-filter module. In \autoref{lst::ARM:int:example3} the code with a primitive value is worked out.
-In line 3 of \autoref{lst::ARM:int:example3} an integer is declared, we assume that by default the value will be zero. An alternative is to create an internals declaration like
-\lstinline!counter : int = 0;!. This value counter is used in line 5 to check whether the amount of rollback is still
-below ten. To get the filter module count every call to the method \lstinline!rollback! we need
-a statement as \lstinline!counter++! (Line 6). Because the internal is only accessible in the filter module we need
-to use a statement in the filter that raises the value of counter.
+Functionality provided by primitives can often be emulated using objects.
+For example, if we take a filter module that allows ten times the call \lstinline!rollback! and gives an error the eleventh time, then the filter module does need a counter to keep track on how many times the call \lstinline!rollback! has been send to that filter module. 
+In \autoref{lst::ARM:int:example3} the code with a primitive value is worked out.
+In line 3 of \autoref{lst::ARM:int:example3} an integer is declared, we assume that by default the value will be zero. 
+An alternative is to create an internals declaration like \lstinline!counter : int = 0;!. 
+This value counter is used in line 5 to check whether the amount of rollback is still below ten. 
+To get the filter module count every call to the method \lstinline!rollback! we need a statement as \lstinline!counter++! (Line 6). 
+Because the internal is only accessible in the filter module we need to use a statement in the filter that raises the value of counter.
 So with the use of primitive values in the filter module we also need to add operators to use the values.
 
-\autoref{lst::ARM:int:example4} shows the same behavior only with an object that inherits from the
-Integer object\footnote{Extending from Integer makes that you can add your own custom methods like \emph{raise()} and
-\emph{isGreaterThenTen()}.}.
+\autoref{lst::ARM:int:example4} shows the same behavior only with an object that inherits from the Integer object\footnote{Extending from Integer makes that you can add your own custom methods like \emph{raise()} and \emph{isGreaterThanTen()}.}.
 The internal declaration now uses a Counter class type, the if-statement is replaced with a condition declaration as seen in line 5 and the raising of the counter is now been handled with a function of the class Counter.
-This gives that using an object is preferable to a primitive value, because we can use the
-methods of the internal and we do not need to introduce mathematical operators, like
-``$>$'' and ``$+$'', in the filter syntax. So we can achieve the same with an object or a primitive,
-only with the primitive we have problems with breaking language independence and
-we have a syntax that is less concise.
+This gives that using an object is preferable to a primitive value, because we can use the methods of the internal and we do not need to introduce mathematical operators, like ``$>$'' and ``$+$'', in the filter syntax. 
+So we can achieve the same with an object or a primitive, only with the primitive we have problems with breaking language independence and we have a syntax that is less concise.
 
-Therefore we conclude that we do not need primitive values in the language and we only need method calls
-and object references.
-Not adding primitive values to the syntax saves us
-from the issues mentioned above. First it offers us the possibility to keep the filter module as concise as possible and
-second if we would consider adding primitive values and some operators, we would never become as expressive
-as the base language, and it is not our goal to copy all the possibilities of the base language.
-With this we can close the discussion whether to introduce primitive values in
-the filter module.
+Therefore we conclude that we do not need primitive values in the language and we only need method calls and object references.
+Not adding primitive values to the syntax saves us from the issues mentioned above. 
+First it offers us the possibility to keep the filter module as concise as possible and second if we would consider adding primitive values and some operators, we would never become as expressive as the base language, and it is not our goal to copy all the possibilities of the base language.
+With this we can close the discussion whether to introduce primitive values in the filter module.
 
 \para{The Methods Block}
-Originally, the filter module also had a method block. As mentioned earlier in ~\cite{Doornenbal2006} it has become obsolete
-and it has been removed from the language.
+Originally, the filter module also had a method block. 
+As mentioned in ~\cite{Doornenbal2006} it has become obsolete and it has been removed from the language.
 
 \para{Combining Internals and Externals}
 \begin{lstlisting}[caption = {A parameter as external object}, label = lst::ARM:fm:comment1,
@@ -89,35 +68,28 @@ superimposition{
     selB <- example(Example.Secretary);
 }
 \end{lstlisting}
-The internals and externals are the local variables of a filter module. If we look at the example programs in \Compose*, then we see
-that the externals are only used in combination with the singleton design pattern~\cite{Gamma95}. Because
-the usage of the externals is limited, we can consider combining both blocks into one block called \emph{variables}.
-Whether the combination of both blocks is desirable depends whether we want to keep a visible difference
-between an internal and external declaration. A solution is to mark externals with a ``*'', like C++ uses for pointers, so that all the
-variables are in one field and there is still a (visible) difference between internals and externals.
+The internals and externals are the local variables of a filter module. 
+If we look at the example programs in \Compose*, then we see that the externals are only used in combination with the singleton design pattern~\cite{Gamma95}. 
+Because the usage of the externals is limited, we can consider combining both blocks into one block called \emph{variables}.
+Whether the combination of both blocks is desirable depends whether we want to keep a visible difference between an internal and external declaration. 
+A solution is to mark externals with a ``*'', like C++ uses for pointers, so that all the variables are in one field and there is still a (visible) difference between internals and externals.
 
 However, with the introduction of filter module parameters, the usages of the internals and externals fields are extended.
-For the externals it means that we can get programs like \autoref{lst::ARM:fm:comment1}. In that example
-one instance of the given object is used for all the classes that are bound in the filter module binding, thus
-in this particular example there are two instances of the class \lstinline!Example.Secretary!, one for the selection
-of classes of selA and of the classes of selB\footnote{The selections can have an overlap.}.
+For the externals it means that we can get programs like \autoref{lst::ARM:fm:comment1}. 
+In that example one instance of the given object is used for all the classes that are bound in the filter module binding, thus in this particular example there are two instances of the class \lstinline!Example.Secretary!, one for the selection of classes of selA and of the classes of selB\footnote{The selections can overlap.}.
 The external declaration on line 3 has an identifier, a fixed type, and a flexible object.
 We can apply the ``*'' construction also in this situation, but then you can only derive the meaning of the code with the ``*''. If we would introduce constructor calls for internal declaration we get a readability problem.
-Consider the line of code: \lstinline|variable : type = ?parameter;|. If this would be an internal in the
-variable block it means that the parameter is cloned, an external in the same variable field is then
-\lstinline|*variable : type = ?parameter;|, which means the same as the construct in \autoref{lst::ARM:fm:comment1}.
-Due to the new options introduced by the parameters, keeping the distinction between internals and externals becomes
-more preferable over the combination of the two blocks.
+Consider the line of code: \lstinline|variable : type = ?parameter;|. 
+If this would be an internal in the variable block it means that the parameter is cloned, an external in the same variable field is then \lstinline|*variable : type = ?parameter;|, which means the same as the construct in \autoref{lst::ARM:fm:comment1}.
+Due to the new options introduced by the parameters, keeping the distinction between internals and externals becomes more preferable over the combination of the two blocks.
 
 So with the introduction of parameters, we need to reevaluate the idea of combining the internals and externals fields.
-And can conclude that with the
-choice of adding parameters to the filter module, it is better to make a clear distinction between externals and internals,
-and the best way to do so is to keep them separated.
+And can conclude that with the choice of adding parameters to the filter module, it is better to make a clear distinction between externals and internals, and the best way to do so is to keep them separated.
 
 \para{Block Ordering}
-The order of the blocks in the filter module is fixed, making it impossible, for instance, to place externals before internals and to have two conditions blocks. It is
-a matter of readability whether mixed ordering and multiple occurrences of blocks are better then fixed ordering and single occurrence of blocks.
-Because of the filter operators and how filters work together we only allow one input and output filter set per filter module and that we do not break it up in sub parts. If we would
-break up the filter sets, then it becomes harder to read how a filter set behaves.
+The order of the blocks in the filter module is fixed, making it impossible, for instance, to place externals before internals and to have two conditions blocks. 
+It is a matter of readability whether mixed ordering and multiple occurrences of blocks are better then fixed ordering and single occurrence of blocks.
+Because of the filter operators and how filters work together we only allow one input and output filter set per filter module and that we do not break it up in sub parts. 
+If we would break up the filter sets, then it becomes more difficult to understand the filter bahavior.
 Another point is that if we would allow the declaration of internals and externals between filters, then users can get confused whether the scope is the whole filter module or just until the next internals or externals block.
 Therefore we chose to use the fixed one-of-a-type syntax and that no mixes of blocks are allowed.

@@ -14,7 +14,16 @@
 \usepackage{picins, graphicx}
 \usepackage{wrapfig} % wrap figure around text -> replacemnt of picins?
 \usepackage{multicol}
-\usepackage[bookmarksnumbered,linktocpage,plainpages=false,pdfpagelabels]{hyperref}
+
+\usepackage[
+%   	colorlinks=true,%
+   	bookmarksnumbered=true,%
+   	bookmarksdepth=3,%
+   	linktocpage=true,%
+   	plainpages=false,%
+   	pdfpagelabels=true,%
+   	pdfstartview=FitH%
+]{hyperref}
 
 \renewcommand{\sectionautorefname}{section}
 \renewcommand{\subsectionautorefname}{\sectionautorefname}
@@ -55,6 +64,8 @@
 \lstset{style=inline}
 \lstloadlanguages{[AspectJ]Java,[HyperJ]Java,ComposeStar, ebnf}
 
+\setcounter{tocdepth}{0}
+
 %---------------------------------------------------------------------------------------
 % Float env.
 %---------------------------------------------------------------------------------------
@@ -94,10 +105,10 @@
 
 \newcommand{\para}[1]{\textbf{#1}\\}
 \newcommand{\subpara}[1]{\textit{\textbf{#1}}\\}
-\newcommand{\faq}[1]{\ifthenelse{\value{@faq}= 1}{\section*{FAQ and Hints}#1}{}}
-\newcommand{\comments}[1]{\ifthenelse{\value{@comments}= 1}{\section*{Commentary}#1}{}}
+\newcommand{\faq}[1]{\ifthenelse{\value{@faq}= 1}{\section{FAQ and Hints}#1}{}}
+\newcommand{\comments}[1]{\ifthenelse{\value{@comments}= 1}{\section{Commentary}#1}{}}
 \newcommand{\dotnetcomment}[1]{\ifthenelse{\value{@comments}= 1 \and \value{@dotnetcomments}= 1}
-{\subsection*{Comments on Compose*.Net}
+{\subsection{Comments on Compose*.Net}
   %\begin{wrapfigure} [6] {l} [0pt] {0pt}
   	%\begin{figure}
 			%\centering
@@ -106,7 +117,7 @@
   %\end{wrapfigure}
 #1}{}}
 \newcommand{\javacomment}[1]{\ifthenelse{\value{@comments}= 1 \and \value{@javacomments}= 1}
-{\subsection*{Comments on Compose*.Java}
+{\subsection{Comments on Compose*.Java}
   %\begin{wrapfigure} [6] {l} [0pt] {0pt}
   	%\begin{figure}
 			%\centering
@@ -115,7 +126,7 @@
   %\end{wrapfigure}
 #1}{}}
 \newcommand{\ccomment}[1]{\ifthenelse{\value{@comments}= 1 \and \value{@ccomments}= 1}
-{\subsection*{Comments on Compose*.C}
+{\subsection{Comments on Compose*.C}
   %\begin{wrapfigure} [6] {l} [0pt] {0pt}
   	%\begin{figure}
 			%\centering
@@ -124,7 +135,7 @@
   %\end{wrapfigure}
 #1}{}}
 \newcommand{\pending}[1]{\ifthenelse{\value{@pending}= 1}
-{\section*{Pending Questions}
+{\section{Pending Questions}
   %\begin{wrapfigure} [6] {l} [0pt] {0pt}
   	%\begin{figure}
 			%\centering
@@ -132,7 +143,7 @@
 		%\end{figure}    
   %\end{wrapfigure}
 #1}{}}
-\newcommand{\furtherreading}[1]{\ifthenelse{\value{@furtherreading}= 1}{\section*{Further Reading}#1}{}}
+\newcommand{\furtherreading}[1]{\ifthenelse{\value{@furtherreading}= 1}{\section{Further Reading}#1}{}}
 
 \newcommand{\turnOn}[1]{\setcounter{#1}{1}}
 \newcommand{\turnOff}[1]{\setcounter{#1}{0}}

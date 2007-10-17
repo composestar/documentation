@@ -5,43 +5,35 @@
 \nomenclature{EBNF}{Extended Backus-Naur Form}%
 \nomenclature{OO}{Object Oriented}%
 \chapter{Internals}%\label{insert_label}
-Internals are the object instances that are instantiated for each instance of a
-filter module. Because of this, internals can be used in situations where
-each instance of a filter module must have its own instance of an object, for example
-to hold a state or for inheritance by delegation.
+Internals are the object instances that are instantiated for each instance of a filter module. 
+Because of this, internals can be used in situations where each instance of a filter module must have its own instance of an object, for example to hold a state or for inheritance by delegation.
 
-\section*{Syntax}
-The internal declaration has two parts, which are separated with a colon. The
-left hand side contains the identifiers of the internals and the right hand
-side the type of those identifiers. 
+\section{Syntax}
+The internal declaration has two parts, which are separated with a colon. 
+The left hand side contains the identifiers of the internals, and the right hand side the type of those identifiers. 
 The formal syntax is defined in \autoref{lst::ARM:int:syntax}.
 
 The types are defined by fully qualified names.
-You can refer to an internal in the conditions field,
-the filter parameters, and the Target.
+You can refer to an internal in the conditions field, the filter parameters, and the Target.
 Internals can only be objects, primitive types are not allowed.
 \begin{lstlisting}[caption = {Internals syntax}, label = lst::ARM:int:syntax,
 style = listing, language = ebnf, float = tpb]
-FilterModule ::= `filtermodule' FilterModuleName 
+FilterModule ::= `filtermodule' Identifier 
                   [FilterModuleParameters] `{'
                   [Internals] [Externals] [Conditions]
-                  [InputFilters] [OutputFilters] `}'
-Internals ::= `internals' (Identifier-LIST `:' Type `;')*
+                  [InputFilters] [OutputFilters] `}';
+Internals ::= `internals' {Internal ';'};
+Internal ::= Identifier {',' Identifier} ':' Type;
 \end{lstlisting}
 
-\section*{Semantics}
-When the filter module gets instantiated, then 
-all its internals get instantiated using the constructor with no parameters,
-this is often the default constructor.
-\autoref{lst::ARM:int:example2} shows the binding of a filter module isActive
-to classes A and B. What this code does at run time is shown in \autoref{fig::arm::int:initialisation},
-every instance of A and B gets its own instance of the filter module isActive
-and each instance of the filter module gets its own instance of the internal \lstinline!state!.
+\section{Semantics}
+When the filter module gets instantiated, all its internals get instantiated using the default constructor.
+\autoref{lst::ARM:int:example2} shows the binding of a filter module \emph{isActive} to classes A and B. 
+The result of this is shown in \autoref{fig::arm::int:initialisation}.
+Every instance of A and B gets its own instance of the filter module \emph{isActive} and each instance of the filter module gets its own instance of the internal \lstinline!state!.
 
-The effect is that every instance of an object gets its own instance of the filter module and thus
-indirect the internal, making it suitable for storing states independently and for inheritance by
-delegation. With the proper filter construction, like \lstinline!d : Dispatch = { <internal.*> internal.*}!, 
-it is possible to extend the signature of a superimposed object with the signature of the internal.
+The effect is that every instance of an object gets its own instance of the filter module and thus indirect the internal, making it suitable for storing states independently and for inheritance by delegation. 
+With the proper filter construction, like \lstinline!d : Dispatch = { <internal.*> internal.*}!, it is possible to extend the signature of a superimposed object with the signature of the internal.
 This means that you do not need to access the internal from outside the filter module, because you can directly
 use the object on which is superimposed.
 
@@ -71,11 +63,9 @@ superimposition{
 	\label{fig::arm::int:initialisation}
 \end{figure}
 
-\section*{Examples}
-In the Pacman example (\autoref{lst::ARM:int:example1}), the strategies
-are internals; this gives that they are instantiated for each 
-filter module. An internal is declared with a fully qualified name
-of a class.
+\section{Examples}
+In the Pacman example (\autoref{lst::ARM:int:example1}), the strategies are internals; this gives that they are instantiated for each filter module. 
+An internal is declared with a fully qualified name of a class.
 
 \begin{lstlisting}[caption = {Example 1, a piece of Pacman}, label = lst::ARM:int:example1,
 style=listing, language =ComposeStar, float = tpb]
@@ -87,83 +77,38 @@ filtermodule dynamicstrategy{
     ...
 \end{lstlisting}
 
-\section*{Legality Rules}
+\section{Legality Rules}
 \begin{itemize}[noitemsep]
 \item The identifier of an internal must be unique for the filter module where it is declared in;
 \item The type must be a fully qualified name of a class and this class must exist;
-\item In order to be instantiated, the class for the internal must have a constructor without parameters;
+\item In order to be instantiated, the class for the internal must have a public constructor without parameters;
 \item When an internal is declared but not used you get a warning from the compiler.
 \end{itemize}
 
 \faq{
 \para{FAQ}
-\question {What is the use of declaring multiple instances of one type? Is it not possible
-to rewrite the class of the type, so that you only need to declare one internal?}
-\answer {This depends on the situation, whereas for holding a state you can also write
-another class that takes care of the complete state, however for constructions
-where you delegate to a tree-like structure,
-like \lstinline!left, right : Node;!, you do not want to combine the internals into one class.}
+\question {What is the use of declaring multiple instances of one type? Is it not possible to rewrite the class of the type, so that you only need to declare one internal?}
+\answer {This depends on the situation, whereas for holding a state you can also write another class that takes care of the complete state, however for constructions where you delegate to a tree-like structure, like \lstinline!left, right : Node;!, you do not want to combine the internals into one class.}
 
 \question {Is it possible to access an internal of another filter module?}
-\answer {It is not possible, on conceptual and implementation level, to
-access an internal with a filter module element reference.}
+\answer {It is not possible, on conceptual and implementation level, to access an internal with a filter module element reference.}
 
-\question {I want to declare an internal with a type that is in a library, but the class does not have a default constructor.
+\question {I want to declare an internal with a type that is in a library, but the class does not have a default constructor. 
 How can I solve this?}
-\answer{The best way to solve this is by extending the class you want to use with a default constructor
-that sets the needed default values. If that is not possible because the class has been made final,
-then you can write a static method which calls a constructor with arguments and returns the result,
-this static method can be used in the declaration of an external\footnote{\nb: Only use this
-construction if you are stuck in such particular situation, see also the commentary.}.}
+\answer{
+The best way to solve this is by extending the class you want to use with a default constructor that sets the needed default values. 
+If that is not possible because the class has been made final, then you can write a static method which calls a constructor with arguments and returns the result, this static method can be used in the declaration of an external\footnote{\nb: Only use this construction if you are stuck in such particular situation, see also the commentary.}.
+}
  
 \para{Hints}
-The instantiation of an internal happens with a constructor with no parameters. In most
-object-oriented languages this is the default constructor, which is used when the user
-does not create a constructor. Sometimes people forget to create a constructor
-without parameters, when there is already a constructor with parameters, which
-results in an error.
+The instantiation of an internal happens with a constructor with no parameters. 
+In most object-oriented languages this is the default constructor, which is used when the user does not create a constructor. 
+Sometimes people forget to create a constructor without parameters, when there is already a constructor with parameters, which results in an error.
 }
 
-\comments{
-\input{chapters/internals/ARM-Internals-Comment2}
+\comments{\input{chapters/internals/ARM-Internals-Comment2}}
 
-\para{Visibility of Internals}
-As mentioned in the semantics, it is possible to extend the signature of the
-class on which is superimposed with the signature of the internal. What is not mentioned in the text, is whether the internal is
-public or private value, and even more important can we directly access the internal?
-To start with the public or private matter, addressing the filter module directly from outside the filter module is not
-correct programming for Compose*, because it breaks with the filter interface. So whether it is public or private, you should not access it anyway.
-
-\para{Internals as Externals}
-As mentioned earlier in \autoref{chapter:filtermodule} it is good to keep a difference between internals
-and externals.
-It is however, possible
-to write all internals as externals, if you write a static method
-\lstinline! static public getnewPerson() \{ return new Person() \} ! and you use that in
-an external declaration, \lstinline!externals person : Person = person.getNewPerson()!,
-then you get the same result as
-when you would create an internal with \lstinline !internals person : Person!.
-The construction showed here is not what we want, because we break the decoupling of
-the main code and the concerns, the class Person, which is in the main code, does have a method which is
-solely written for a concern. The only correct use for this construction is when you
-want to use an internal of a class out of a library, and this class does not have a default constructor
-and the class is declared as final\footnote{It is actually your only option when you
-are stuck with such a library.}. It is for the best to avoid this kind of constructions;
-however it is good to know that there are workarounds for this kind of situations.
-}
-
-\dotnetcomment{
-If you really want to access an internal then there are two options,
-first you can access the filter information from the repository, which has at runtime the reference
-to the internal you want. %\footnote{As you might guessed this is actually a hack.}.
-Second, it is possible to write a filter that returns the internal and with the
-extension of the signature of the superimposed object you can get a \emph{get-method}
-for the internal, this construction is demonstrated in \autoref{lst::ARM:fmp:commentdotnet1}. 
-The second option
-is preferable above the first one, because it is more clear of what you do, only in
-certain cases where you cannot extend the signature you are stuck with the first option.
-\input{chapters/internals/ARM-Internals-CommentDotNet}
-}
+\dotnetcomment{\input{chapters/internals/ARM-Internals-CommentDotNet}}
 
 %\ccomment{To be specified\\\\\\\\\\}
 

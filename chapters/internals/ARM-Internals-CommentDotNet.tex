@@ -1,3 +1,8 @@
+If you really want to access an internal then there are two options, first you can access the filter information from the repository, which has at runtime the reference to the internal you want. 
+%\footnote{As you might guessed this is actually a hack.}.
+Second, it is possible to write a filter that returns the internal and with the extension of the signature of the superimposed object you can get a \emph{get-method} for the internal, this construction is demonstrated in \autoref{lst::ARM:fmp:commentdotnet1}. 
+The second option is preferable above the first one, because it is more clear of what you do, only in certain cases where you cannot extend the signature you are stuck with the first option.
+
 \begin{lstlisting}[caption = {How to get hold of an internal}, label = lst::ARM:fmp:commentdotnet1,
 style = listing, language=ComposeStar, float = tpb]
 filtermodule returnInternal{

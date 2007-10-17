@@ -1,17 +1,27 @@
 \para{The use of Arguments in Constructors Calls}
-The internal initialization is done with a constructor without arguments;
-this is a result of the requirement to be language independent. The internal declaration 
-\lstinline!internal: Person = Person(``Albert'', 24, true);! is considered as language dependent and therefore
-only constructors without arguments are used. We will not re-discuss the point of allowing primitive values
-in the internal declaration, because is has been discussed in \autoref{chapter:filtermodule}.
-However, with the introduction of the filter module parameters it is possible to
-use objects, which are passed through the filter module parameters, in the declaration of the internals.
-This feature is not added to the syntax yet, because it relies on the full implementation of the filter
-module parameters. When this is realized then the syntax can change to the one given in \autoref{lst::ARM:int:syntax2}.
+The internal initialization is done with a constructor without arguments; this is a result of the requirement to be language independent. 
+The internal declaration \lstinline!internal: Person = Person(``Albert'', 24, true);! is considered as language dependent and therefore only constructors without arguments are used. 
+We will not re-discuss the point of allowing primitive values in the internal declaration, because is has been discussed in \autoref{chapter:filtermodule}.
+However, with the introduction of the filter module parameters it is possible to use objects, which are passed through the filter module parameters, in the declaration of the internals.
+This feature is not added to the syntax yet, because it relies on the full implementation of the filter module parameters. 
+When this is realized then the syntax can change to the one given in \autoref{lst::ARM:int:syntax2}.
 \\\\
 \begin{lstlisting}[caption = {Proposed internal syntax}, label = lst::ARM:int:syntax2,
 style = listing, language = ebnf]
-Internals ::= `internals' (Identifier-LIST `:' Type 
-              [`=' InitialisationExpression `(' [ Argument-LIST ] `)']`;')*
+Internal ::= Identifier {',' Identifier} ':' Type 
+              [`=' Fqn `(' FilterModuleParameters `)']
 \end{lstlisting}
 Because we already use default constructors, we already have the mapping from the language independent declaration to language specific constructor calls, thus we do not have to work them out for adding arguments in a constructor.
+
+\para{Visibility of Internals}
+As mentioned in the semantics, it is possible to extend the signature of the class on which is superimposed with the signature of the internal. 
+What is not mentioned in the text, is whether the internal is public or private value, and even more important can we directly access the internal?
+To start with the public or private matter, addressing the filter module directly from outside the filter module is not correct programming for Compose*, because it breaks with the filter interface. 
+So whether it is public or private, you should not access it anyway.
+
+\para{Internals as Externals}
+As mentioned earlier in \autoref{chapter:filtermodule} it is good to keep a difference between internals and externals.
+It is however, possible to write all internals as externals, if you write a static method \lstinline! static public getnewPerson() \{ return new Person() \} ! and you use that in an external declaration, \lstinline!externals person : Person = person.getNewPerson()!, then you get the same result as when you would create an internal with \lstinline !internals person : Person!.
+The construction showed here is not what we want, because we break the decoupling of the main code and the concerns, the class Person, which is in the main code, does have a method which is solely written for a concern.
+The only correct use for this construction is when you want to use an internal of a class out of a library, and this class does not have a default constructor and the class is declared as final\footnote{It is actually your only option when you are stuck with such a library.}. 
+It is for the best to avoid this kind of constructions; however it is good to know that there are workarounds for this kind of situations.
