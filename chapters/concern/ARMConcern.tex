@@ -1,57 +1,61 @@
 % ARM concern entry
 \chapter{Concern} \label{chapter:concern}
-Concerns are the distinctive building blocks of a \Compose* application, in addition to the building blocks
-of the base language. Conceptually concerns are an extension to classes.
-Concerns are declared in files with the .cps extension.
+Concerns are the distinctive building blocks of a \Compose* application, in addition to the building blocks of the base language. Conceptually concerns are an extension to classes.
+Concerns are declared in files with a \emph{.cps} extension.
 
-A concern has three different parts: zero or more filter modules, an optional superimposition part, and an optional implementation part. The filter modules are superimposed
-on classes by the filter module binding field of the superimposition. The implementation part contains
-language dependent code of the concern.
+A concern has three different parts: zero or more filter modules, an optional superimposition part, and an optional implementation part. 
+The filter modules are superimposed on classes by the filter module binding field of the superimposition. 
+The implementation part contains language dependent code of the concern.
 
 \section*{Syntax}
-\begin{lstlisting}[caption = {Concern syntax}, label = lst::ARM:concern:syntax,
-style = listing, language = ebnf, float = tpb]
-Concern ::= `concern' Identifier [`in' Namespace]
-            `{' (FilterModule)* [SuperImposition] [Implementation] `}'
-Namespace ::= Identifier (`.' Identifier)*
-ConcernBlock ::= `{' (FilterModule)* [SuperImposition] [Implementation] `}'               
+\begin{lstlisting}[caption = {Concern syntax}, label = lst::ARM:concern:syntax, style = listing, language = ebnf, float = tpb]
+Concern ::= `concern' Identifier [ConcernParameters] [`in' Namespace] ConcernBlock;
+ConcernParameters ::= `(' Identifier ':' Type {`,' Identifier ':' Type } `)';
+Type ::= Fqn;
+Fqn ::= Identifier {`.' Identifier};
+Namespace ::= Fqn;
+ConcernBlock ::= `{' {FilterModule} [SuperImposition] [Implementation] `}';
 \end{lstlisting}
-The syntax of a concern is shown in \autoref{lst::ARM:concern:syntax}. A concern name must be unique for the package where it is declared. It often has the same name as the .cps file in which it is declared. It is not possible to place two concerns in one file.
+The syntax for a concern definition is shown in \autoref{lst::ARM:concern:syntax}. 
+A concern name must be unique for the namespace where it is declared.
+It often has the same name as the \emph{.cps} file in which it is declared, but this is not a requirement.
+It is not possible to place two concerns in one file.
 The ordering of the filter modules, superimposition, and implementation is fixed.
 
 \section*{Semantics}
-The concern is the main language entity of \Compose*, it consists of one or more filter modules,
-an optional superimposition part, and an optional implementation part. How these are combined depends on how you use
-a \Compose* concern. There are two different types of usage of a concern. We will look here to the usage that comes from the conceptual idea, which assumes that a
-class is a concern. 
-This means that every class can be written as a concern, with an implementation part and one or more filter modules. To superimpose these concerns onto other classes, a concern is used with a superimposition part; this concern can be seen as a sort of aspect specification.
+The concern is the main language entity of \Compose*, it consists of one or more filter modules, an optional superimposition part, and an optional implementation part. 
+How these are combined depends on how you use a \Compose* concern. 
+There are two different types of usage of a concern. 
+We will look here to the usage that comes from the conceptual idea, which assumes that a class is a concern. 
+This means that every class can be written as a concern, with an implementation part and one or more filter modules. 
+To superimpose these concerns onto other classes, a concern is used with a superimposition part; this concern can be seen as a sort of aspect specification.
 
 \section*{Examples}
-\begin{lstlisting}[language={Composestar},style=floatlisting, caption={Abstract example of a concern},label={lst::arm::con:concerntemplate}, floatplacement=tbp]
-concern aConcern in aNamespace{
-  filtermodule A{
+\begin{lstlisting}[language={Composestar},style=floatlisting, caption={Abstract example of a concern}, label={lst::arm::con:concerntemplate}, floatplacement=tbp]
+concern aConcern in aNamespace {
+  filtermodule A {
     ...
   }
   
-  filtermodule B{
+  filtermodule B {
     ...
   }
   
-  superimposition{
+  superimposition {
     ...
   }
   
-  implementation{
+  implementation {
     ...
   }
 }
 \end{lstlisting}
-A concern heading consists of a concern name%, concern parameters which are optional,
-and the package in which the concern is defined. The package is also optional, if none is specified the concern is located in the root
-of a project, the usage of packages works the same as in other languages that supports packages or namespaces.
+A concern heading consists of a concern name, optional concern parameters, and an optional namespace declaration.
+If no namespace is specified, the concern is located in the root of a project.
+The namespace has identical semantics as namespaces in other languages (like Java and C\#).
 
-In the concern it is possible to create one or more filter modules, one superimposition block
-and an implementation part. A possible concern is demonstrated in \autoref{lst::arm::con:concerntemplate}.
+In the concern it is possible to define one or more filter modules, one superimposition block, and an implementation part. 
+A possible concern is demonstrated in \autoref{lst::arm::con:concerntemplate}.
 
 \section*{Legality Rules}
 \begin{itemize}[noitemsep]
@@ -65,7 +69,7 @@ and an implementation part. A possible concern is demonstrated in \autoref{lst::
 %\para{Hints}
 %}
 \comments{\input{chapters/concern/ARMConcernComment}}
-\dotnetcomment{\input{chapters/concern/ARMConcernDotNETComment}}
+%\dotnetcomment{}
 %\javacomment{}
 %\ccomment{}
 %\pending{}

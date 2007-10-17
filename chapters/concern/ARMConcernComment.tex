@@ -24,5 +24,35 @@ The usages in this table are all the possible usages of concerns.
 \end{table*}
 
 \para{Concern Parameters}
-There has been the idea to use global variables in a concern. These variables were declared in a concern with the concern parameters block. However it became clear that it is not possible to assign these parameters anywhere in the application, because with the introduction of superimposition it is no longer useful to instantiated concerns manually with arguments.
-Therefore the concern parameters are removed from the \Compose* syntax.
+There has been the idea to use global variables in a concern. 
+These variables were declared in a concern with the concern parameters block. 
+\autoref{lst::ARM:concern:example1} shows an example usage of concern parameters.
+However it became clear that it is not possible to assign these parameters anywhere in the application.
+With the introduction of superimposition it is no longer useful to instantiated concerns manually with arguments.
+Therefore the concern parameters are not implemented.
+
+\begin{lstlisting}[caption={JoinPointInfoConcern from the JoinPointInformation example },label=lst::ARM:concern:example1,style=listing,language=ComposeStar,float=[tpb]]
+concern JoinPointInfoConcern
+    (ext_foo : JPInfo.Foo ; ext_bar : JPInfo.Bar) in JPInfo{
+
+  filtermodule JPInfoModule{
+    internals
+      in_foo : JPInfo.Foo;
+      in_bar : JPInfo.Bar;
+      jpie   : JPInfo.JoinPointInfoExtractor;
+    conditions
+      cond : jpie.doCondition();
+    inputfilters
+      meta : Meta = { cond => [*.*] jpie.extract }
+  }
+
+  superimposition{
+    selectors
+      selectees = { C | isClassWithName(C, 'JPInfo.JoinPointInfoConcern') };
+    filtermodules
+      selectees <- JPInfoModule;
+  }
+
+  implementation by JPInfo.JoinPointInfoConcern;
+}
+\end{lstlisting}

@@ -1,47 +1,53 @@
 \chapter{Glossary}
-\paragraph{\Compose*[Java]} Compose*.Java is the Java port of Compose*.
-\paragraph{\Compose*[DotNET]} Compose*.Net is the .Net port of Compose*.
-\paragraph{\Compose*{} developer} A member of the Compose* team, thus who programs on Compose*.
-This term is used to avoid the ambiguous term Compose* programmer.
-\paragraph{\Compose*{} user} Somebody who uses Compose*, this does not exclude the
+
+\paragraph{Base language} \Compose* is an extension to other programming languages, the base language is the language
+that gets extended. So for \Compose*[Java] the programming language Java is the parent language.
+
+\paragraph{\Compose*[Java]} \Compose*[Java] is the Java port of \Compose*.
+
+\paragraph{\Compose*[DotNET]} \Compose*[Net] is the .Net 1.1 port of \Compose*.
+
+\paragraph{\Compose*{} developer} Somebody who works on the development of the Compose* toolset.
+This term is used to avoid the ambiguous term \Compose* programmer.
+
+\paragraph{\Compose*{} user} Somebody who uses \Compose*, this does not exclude the
 person from being a Compose* developer. This term is used to avoid the ambiguous term Compose* programmer.
+
 \paragraph{Default constructor} A constructor without any argument.
 
 \paragraph{Functional complete} A set of logical operators is functional complete when it can express any operator from
 the set~\cite{vanBenthem91}.
-So a XOR (exclusive OR) is not in a functional complete set, because 
-$A~XOR~B~=~(A~AND~!B)~OR~(!A~AND~B)$. The smallest
-functional complete set only contains OR and NOT.
+So a XOR (exclusive OR) is not in a functional complete set, because $A~XOR~B~=~(A~AND~!B)~OR~(!A~AND~B)$. 
+The smallest functional complete set only contains OR and NOT.
 
-\paragraph{Language independence} Compose* is designed to be used for any language, that gives that Compose*
-needs to be language independent. This language in dependency influences Compose* in two ways, first on the
-syntax and semantics, and second on the under laying mechanisms. True language independence means that a concern can be added to
-an application to a random parent language and it behaves he same as if you would place it in the same application
-written in a different parent language. For the syntax and semantics this means that we cannot add primitive types to
-Compose*, because for instance \emph{int}, \emph{char}, and \emph{double}, can have different ranges.
-These limitations can be solved by
-automating some conversions, for instance we could introduce our own primitive type \emph{i} which is an integer
-of 32 bits, then we can transform this primitive to the primitive value we want by creating a conversion method in
-Compose*. However for every work around in the language applies that it is just more code and even more important
-that it solves the problem for most of the cases, but is would cause errors in a small number of situations.
-For instance we go further with our primitive i, we find ourselves in the situation that this idea only works if the
-application stays on one platform and one parent language, if we would import a library then we cannot say for certain
-to what primitive type we must convert. So if we apply the our own defined primitives we limit the use of the parent language,
-which is something we do not want.
+\paragraph{Language independence} Compose* is designed to be used for any language, that gives that Compose* needs to be language independent. 
+This language in dependency influences Compose* in two ways, first on the syntax and semantics, and second on the under laying mechanisms. 
+True language independence means that a concern can be added to an application to a random parent language and it behaves he same as if you would place it in the same application written in a different parent language. 
+For the syntax and semantics this means that we cannot add primitive types to \Compose*, because for instance \emph{int}, \emph{char}, and \emph{double}, can have different ranges.
+These limitations can be solved by automating some conversions, for instance we could introduce our own primitive type \emph{i} which is an integer of 32 bits, then we can transform this primitive to the primitive value we want by creating a conversion method in \Compose*. 
+However a workaround is not a proper solution, what works in most cases might not work in an other case.
+These workaround increase the maintainability of the toolset, and are usually very error prone.
+For example the primitive example mentioned earlier, primitives are always bound to a certain specification.
+The specification for similar primitives can be different across different platforms and parent languages.
+For example the \emph{int} primitive in C is defined to be a signed number that is at least the size of a system word and at least 16bits. 
+This means that on 32 bit systems this could be either 16 bits or 32 bits depending on the compiler.
+Our suggested primitive \emph{i} is a 32 bit signed number, which does not have a direct mapping to the C \emph{int} type.
+This can lead to confusion for the \Compose* users, and depending on the conversion method limit the parent language.
+%For instance we go further with our primitive \emph{i}, we find ourselves in the situation that this idea only works if the application stays on one platform and one parent language, if we would import a library then we cannot say for certain to what primitive type we must convert. 
+%So if we apply the our own defined primitives we limit the use of the parent language, which is something we do not want.
 
 This gives that there are a few basic comments on language independence which are common for all the parts of the
-Compose* language:
+\Compose* language:
 
 \begin{itemize}[noitemsep]
 \item Keywords from parent languages have language specific meanings, that means that we cannot use them
-directly in Compose*.
-\item The things that are language independent are Objects, Methods, Packages, and Annotations. However these
+directly in \Compose*{}.
+\item Language independent elements are Objects, Methods, Packages, and Annotations. However these
 might not be available in every language, for instance C does not know Objects and Annotations are not common for all
 languages.
-\item Workarounds with conversion mechanisms might work, but probably it conceptual not sound or you limit
-yourself in another way.
-\item If something, for example an integer is 32 bit, in most languages, say Java, C\#, C++, Delphi, then it dos not mean
-that it can be made language independence. There is probably one language around where the integer is not 32 bit.
+\item Workarounds with conversion mechanisms might work, but this is conceptual not sound or it would introduce unwanted limitations.
+\item A lot of primitives do not share identical specifications between various languages. Which makes it difficult to use them in a language independent manner.
+%\item If something, for example an integer is 32 bit, in most languages, say Java, C\#, C++, Pascal, then it does not mean that it can be made language independence. There is probably one language around where the integer is not 32 bit.
 \end{itemize}
 
 \paragraph{Signature of a class} There are various definitions of the signature of a class, the one used in \Compose* is
@@ -57,8 +63,6 @@ public class Person{
 }
 \end{lstlisting}
 
-\paragraph{Base language} \Compose* is an extension to other programming languages, the base language is the language
-that gets extended. So for \Compose*[Java] the programming language Java is the parent language.
+\paragraph{StarLight} The .Net 2 port of \Compose*.
 
-\paragraph{Wild card} The used term for the `*' token, whereas it normally means everything, it means in \Compose*
-ignore.
+\paragraph{Wild card} The term used for the `*' token. It \Compose* this generally means to disregard the field value.
