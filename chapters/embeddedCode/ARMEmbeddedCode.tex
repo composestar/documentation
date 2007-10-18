@@ -1,26 +1,28 @@
 % empty template for ARM entry. By Dirk Doornenbal. V1.5 2 mei 2006
 \chapter{Implementation Part} \label{chapter:implementation}
-The implementation part is were the base language dependent code of a concern is specified. The code
-is copied to a format known to the base language and is compiled by the compiler of the base language. This
-is done to save the effort of writing our own compiler.
+The implementation part is were the base language dependent code of a concern is specified. 
+The code is copied to a format known to the base language and is compiled by the compiler of the base language.
+This is done to save the effort of writing our own compiler.
 
-\section*{Syntax}
-\begin{lstlisting}[caption = {Implementation syntax}, label = lst::ARM:impl:syntax,
-style = listing, language = ebnf, float = tpb]
-Implementation ::= `implementation'(`by' ClassName `;'
-                   | `in' SourceLanguage `by' ClassName `as' FileName `{' Source `}'
-Source ::= (?)*
+\section{Syntax}
+\begin{lstlisting}[caption = {Implementation syntax}, label = lst::ARM:impl:syntax, style = listing, language = ebnf, float = tpb]
+Implementation = 'implementation' ('by' ClassName ';') | ( 'in' Language 'by' ClassName 'as' FileName SourceCode );
+ClassName = Identifier;
+Language = Identifier;
+FileName = '"' ? just a filename with extention ? '"';
+SourceCode = '{' ? the source code ? '}';
 \end{lstlisting}
 The heading of the implementation contains the name of the source language, the class name and the file name.
+The language value is an identifier of the language supported by the used platform.
 The file name needs to be marked with quotes.
-The source code must be written according the specification of the base language. The \Compose* syntax for
-the implementation part is shown in \autoref{lst::ARM:impl:syntax}.
+The source code must be written according the specification of the base language. 
+The \Compose* syntax for the implementation part is shown in \autoref{lst::ARM:impl:syntax}.
 
-\section*{Semantics}
-The implementation part is the base language dependent part of a concern. As we have already seen in \autoref{ch::arm:con}
-is a concern with only an implementation part just a class.
+\section{Semantics}
+The implementation part is the base language dependent part of a concern. 
+As we have already seen in \autoref{ch::arm:con} is a concern with only an implementation part just a class.
 
-\section*{Examples}
+\section{Examples}
 \autoref{lst::ARM:ec:example1} shows a C\# class that is fully placed in a concern.
 Besides adding a complete class by stating it in the \emph{cps} file it also possible to point to a dll file.
 Every concern can only have one implementation part.
@@ -54,16 +56,21 @@ concern Bar in GrammarTest{
 %\para{Hints}
 %}
 \comments{
-There have been several ideas on the usage of the implementation part. In \cite{salinas:ms01} the proposal is made to
-add implementations for each base language. So for the source for a logger you write for instance a Java and a C$\sharp$
-source.
-}
-\dotnetcomment{
-The code that is placed in this block, is copied
-to the directory embedded, in the file with the name you have specified.
+There have been several ideas on the usage of the implementation part. In \cite{salinas:ms01} the proposal is made to add implementations for each base language. 
+So for the source for a logger you write for instance a Java and a C$\sharp$ source.
 
-The syntax cannot handle ``$\sharp$'' in the source language, therefore you need to write sharp full out.
+\para{Language identifiers}
+This is an overview of the languages and language identifiers that can be used in the various ports.
+
+\begin{tabular}{l|l|l}
+Platform 												& Language 				& Identifier\\ \hline
+\Compose*[DotNet] \& StarLight 	& C$\sharp$ 			& CSharp\\ \cline{2-3}
+																& VisualJ$\sharp$ & JSharp\\ \hline
+\Compose*[Java]									& Java 						& Java\\
+\end{tabular}
+
 }
+%\dotnetcomment{}
 %\javacomment{}
 %\ccomment{}
 %\pending{}

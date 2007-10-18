@@ -33,8 +33,9 @@
 %------------------------------------------------------------------------------------------
 \turnOn{@comments}
 \turnOn{@dotnetcomments}
-\turnOff{@javacomments}
+\turnOn{@javacomments}
 \turnOff{@ccomments}
+\turnOn{@starlightcomments}
 \turnOn{@faq}
 \turnOn{@furtherreading}
 \turnOn{@pending}
@@ -78,8 +79,10 @@
 \include{chapters/matchingPart/ARMMatchingPart}
 \include{chapters/substitutionPart/ARMSubstitutionPart}
 \include{chapters/superimposition/ARMSuperimposition}
+\include{chapters/siconditions/SuperImpositionConditions}
 \include{chapters/selector/ARMSelector}
 \include{chapters/filtermoduleBinding/ARMFiltermoduleBinding}
+\include{chapters/constraints/FMConstraints}
 \include{chapters/embeddedCode/ARMEmbeddedCode}
 
 %\addcontentsline{toc}{part}{Appendices}
@@ -87,7 +90,7 @@
 \include{appendix/selectorfunctions}
 \include{appendix/messageAPI}
 \include{appendix/grammar}
-\include{newchapters/filterelements/ARMFilterelements}
+%\include{newchapters/filterelements/ARMFilterelements}
 
 % get rid of the header in the bibliography
 \fancyhead[R]{\textnormal{Bibliography}}

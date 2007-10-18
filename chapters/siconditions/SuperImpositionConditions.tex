@@ -1,0 +1,63 @@
+% empty template for an ARM chapter.
+\chapter{Superimposition Conditions}\label{cha:Superimposition_Conditions}
+
+The superimposition conditions are much like the conditions defined in the filter modules.
+Except that they can be used for conditional superimposition of filter modules.
+This will allow the binding of filter modules to be depended on a runtime variable.
+
+\section{Syntax}
+
+\begin{lstlisting}[caption={Superimposition Conditions Syntax}, label=lst::ARM:sicond:syntax, style=listing, language=ebnf, float=tpb]
+Superimposition = '{' [Conditionals] [Selectors] [FilterModuleBindings] [AnnotationBindings] [Constraints] '}';
+Conditionals = 'conditions' {SiCondition ';'};
+SiCondition = Identifier ':' Fqn ['(' Arguments ')']
+\end{lstlisting}
+
+Just like the conditions defined in a filter module, these conditions consist of a identifier and a method that returns a boolean value.
+The condition identifier must be unique within the superimposition block.
+
+\section{Semantics}
+
+Each condition is bound to a method.
+The method must be a reference to a static method in a defined class.
+The condition can be used in the filter module binding part of the superimposition.
+It is not possible to use selector values as class reference.
+Selectors are often a set of classes, which makes it unclear which class to use for the method binding.
+
+\section{Examples}
+
+\begin{lstlisting}[caption={Some condition examples}, label = lst::ARM:sicond:example1, style=listing, language =ComposeStar, float = tpb]
+conditions
+      loggingEnabled : BasicTests.ConditionalSuperImpositionTests.LoggingEnabled;
+		  timingEnabled : BasicTests.ConditionalSuperImpositionTests.TimingEnabled;
+\end{lstlisting}
+
+\autoref{lst::ARM:sicond:example1} shows two defined conditionals. They both point to a static method in the class \lstinline|BasicTests.ConditionalSuperImpositionTests|.
+
+\section{Legality Rules}
+\begin{itemize}[noitemsep]
+\item The identifier must be unique within the superimposition block;
+\item The method must be a public static method;
+\item The static method must return a boolean value.
+\end{itemize}
+
+%\faq{}
+
+\comments{
+\para{Method arguments}
+The method arguments are not supported and implemented.
+It is currently unclear what values could be passed to these static methods.
+It might be a option to use the values of the concern parameters as explained in \autoref{chapter:concern}.
+
+\para{Port support}
+Superimposition conditionals are currently only supported in StarLight. 
+The runtime ports (\Compose*[DotNet] and \Compose*[Java]) do not support the usage of conditionals.
+They will accept it in the language, but they are disregarded in the execution.
+}
+%\dotnetcomment{}
+%\javacomment{}
+%\ccomment{}
+
+%\pending{}
+
+%\furtherreading{}

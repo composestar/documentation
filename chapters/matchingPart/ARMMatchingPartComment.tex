@@ -1,34 +1,37 @@
-Name matching had two syntax variants, \lstinline![foo.bar]! is the same as
-\lstinline!"foo.bar"!. To keep the language concise the quotes have been removed.
-
-With the new proposed filter layout \cite{Doornenbal2006} 
-it is possible to filter on more then just the target and the selector. It is known that the current system is too limited
-to the users.
+With the new proposed filter layout \cite{Doornenbal2006} it is possible to filter on more then just the target and the selector. 
+It is known that the current system is too limited to the users.
 
 \para{Wildcards}
-In AspectJ it is possible to define pointcuts with wildcards in the method name, like \lstinline!set*!. We are aware
-that \Compose* is indeed not AspectJ, but the idea of using wildcards is tempting, because it is a quick language
-construct. The disadvantage is that \lstinline!set! is open-ended and that a method like \lstinline!setup! is taken into the selection as well. A better solution is to use design documentation, like annotations, instead of a wildcard.
-In ~\cite{Nagy2006} a proposal is made to use annotations in the matching part, it is has not been implemented yet and therefore the language changes are not mentioned in this chapter. Filtering on annotations is covered by the new filter element syntax, however the syntax is different from the original proposal.
+In AspectJ it is possible to define pointcuts with wildcards in the method name, like \lstinline!set*!. 
+We are aware that \Compose* is indeed not AspectJ, but the idea of using wildcards is tempting, because it is a quick language construct. 
+The disadvantage is that \lstinline!set! is open-ended and that a method like \lstinline!setup! is taken into the selection as well. 
+A better solution is to use design documentation, like annotations, instead of a wildcard.
+In ~\cite{Nagy2006} a proposal is made to use annotations in the matching part, it is has not been implemented yet and therefore the language changes are not mentioned in this chapter. 
+Filtering on annotations is covered by the new filter element syntax, however the syntax is different from the original proposal.
 
-\para{Signatures}
-Despite of its name, signature matching only matches on the names of the methods in a class, instead of
-the whole signature. To check on the whole signature you need a meta filter and you have to write the check function
-yourself. Also filling in the selector in the signature matching has no use, because \lstinline|<foo.bar>| will
-always hold or always fail.
+%%michielh: no long true?
+%\para{Signatures}
+%Despite of its name, signature matching only matches on the names of the methods in a class, instead of
+%the whole signature. 
+%To check on the whole signature you need a meta filter and you have to write the check function yourself. 
+%Also filling in the selector in the signature matching has no use, because \lstinline|<foo.bar>| will always hold or always fail.
 
 \para{Inner, Self, Server, and Sender}
-In \cite{bergmans:phd94} there are more predefined keywords that say something about the object, on which is superimposed, then just the keyword \emph{inner}. In that plan the keywords \emph{self}, \emph{server}, and \emph{sender} can be used in the matching and substitution part. Self is the object on which is superimposed plus the extended signatures, thus the original object plus the filter modules.
+In \cite{bergmans:phd94} there are more predefined keywords that say something about the object, on which is superimposed, than just the keyword \emph{inner}. 
+In that plan the keywords \emph{self}, \emph{server}, and \emph{sender} can be used in the matching and substitution part. 
+Self is the object on which is superimposed plus the extended signatures, thus the original object plus the filter modules.
 
-The server keyword points to the original target and selector of a message, thus the original message before it goes into the set of filter modules. Sender is the object that sends the message. The server and sender can be retrieved in a meta filter.
+The \emph{server} keyword points to the original target and selector of a message, thus the original message before it goes into the set of filter modules. 
+\emph{Sender} is the object that sends the message. 
+The \emph{server} and \emph{sender} can be retrieved in a meta filter.
 
-With self we need to determine whether self is the extended object after all filter module bindings or just after some of the filter module bindings. With this definition you are never sure
-how the self object looks like, because the self object is flexible due to the possibility that more filter modules are added to the object. So it is better to leave self out of the language.
+With \emph{self} we need to determine whether \emph{self} is the extended object after all filter module bindings or just after some of the filter module bindings. 
+With this definition you are never sure how the self object looks like, because the self object is flexible due to the possibility that more filter modules are added to the object. 
+So it is better to leave self out of the language.
 
-\dotnetcomment{
-Whether the mechanism to add the selectors of a name matching to the superimposed object depends on the filter type
-is still an open question. Practically we can apply the mechanism to all filters, the only conceptual point is
-whether we should also include it for the error filter. Because this last filter does not add any behavior as in adding
-methods to a superimposed object, the mechanism must not work for the error filter. In \autoref{chapter:filtertype} 
-there is an overview of which filter type uses the mechanism and which does not.
-}
+%\dotnetcomment{
+%Whether the mechanism to add the selectors of a name matching to the superimposed object depends on the filter type is still an open question. 
+%Practically we can apply the mechanism to all filters, the only conceptual point is whether we should also include it for the error filter. 
+%Because this last filter does not add any behavior as in adding methods to a superimposed object, the mechanism must not work for the error filter. 
+%In \autoref{chapter:filtertype} there is an overview of which filter type uses the mechanism and which does not.
+%}

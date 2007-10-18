@@ -1,102 +1,87 @@
 \chapter{Grammar}
 This is the full design of the grammar. The current used grammar can differ from this one.
+
 \begin{lstlisting}[label=lst::proposedgrammar,style=listing,language=ebnf]
-Concern ::= `concern' Identifier [`in' Namespace]
-            `{' (FilterModule)* [SuperImposition] [Implementation] `}'
-Namespace ::= Identifier (`.' Identifier)*
 
-FilterModule ::= `filtermodule' FilterModuleName [FilterModuleParameters] `{'
-                  [Internals] [Externals] [Conditions]
-                  [InputFilters] [OutputFilters] `}';
-FilterModuleParameters ::= `(' [ParameterDefinition-LIST] `)'
-ParameterDefinition ::= Parameter | ParameterList
-Parameter ::= ``?''Identifier
-ParameterList ::= ``??''Identifier
+Concern = 'concern' Identifier [ConcernParameters] ['in' Namespace] ConcernBlock;
+ConcernParameters = '(' Identifier ':' Type {',' Identifier ':' Type } ')';
+Type = Fqn;
+Fqn = Identifier {'.' Identifier};
+Namespace = Fqn;
+ConcernBlock = '{' {FilterModule} [SuperImposition] [Implementation] '}';
 
-Internals ::= `internals' (Identifier-LIST `:' Type 
-              [`=' InitialisationExpression `(' [ Argument-LIST ] `)']`;')*
-Externals ::= `externals' (Identifier `:' Type 
-              `=' InitialisationExpression `(' [ Argument-LIST ] `)' `;')* 
-InitialisationExpression ::= MethodReference
-Conditions ::= `conditions' (Identifier `:' MethodReference `;')*
-MethodReference ::= (FilterModuleElement``.''MethodName | FullyQualifiedName)
-                    [Arguments]
-Arguments ::= `(' Value-LIST `)'
+FilterModule = 'filtermodule' Identifier [FilterModuleParameters] '{' [Internals] [Externals] [Conditions] [InputFilters] [OutputFilters] '}';
+FilterModuleParameters = '(' ParameterDefinition {',' ParameterDefinition} ')';
+ParameterDefinition = Parameter | ParameterList;
+Parameter = '?' Identifier;
+ParameterList = '??' Identifier;
 
-Inputfilters ::= `inputfilters' FilterSet
-Outputfilters ::= `outputfilters' FilterSet
+Internals = 'internals' {Internal ';'};
+Internal = Identifier {',' Identifier} ':' Type;
+Externals = 'externals' {Identifier ':' Type ['=' InitialisationExpression] ';'};
+InitialisationExpression = Fqn '(' [ArgumentList] ')';
+ArgumentList = IdentifierOrFMParam {',' IdentifierOrFMParam};
+IdentifierOrParameter = Identifier | Parameter;
+Conditions = 'conditions' {Identifier ':' InitialisationExpression ';'};
 
-FilterSet ::= Filter (FilterOperator Filter)*
-FilterOperator ::= `;'
-Filter ::= FilterName `:' FilterType [Arguments] `=' `{' FilterElements `}'
-FilterType ::= Identifier
-FilterElements ::= FilterElement (ElementCompositionOperator FilterElement)*
-ElementCompositionOperator ::= ','
+InputFilters = 'inputfilters' FilterSet;
+OutputFilters = 'outputfilters' FilterSet;
 
-FilterElement ::= [ORExpression ConditionOperator] MessagePattern
-ORExpression ::= ANDExpression [`|' ANDExpression]
-ANDExpression ::= NOTExpression [`&' NOTExpression]
-NOTExpression ::= [!] (ConditionLiteral | `('ORExpression`)')
-ConditionLiteral ::= ConditionName | `True'| `False'
-ConditionOperator ::= `=>' | `~>'
-MessagePattern ::= Matching [SubstitutionPart]
-                   | MatchPattern
-                   | `{' Matching (`,' Matching)* `}' [SubstitutionPart] 
-Matching ::= SignatureMatching | NameMatching
-SignatureMatching ::= `<' MatchPattern `>'
-NameMatching ::= `[' MatchPattern `]'
-SubstitutionPart ::= [Target `.'] Selector
-MatchPattern ::= [Target `.'] Selector
+FilterSet = Filter {FilterOperator Filter};
+FilterOperator = ';';
+Filter = Identifier ':' FilterType ['(' [ArgumentList] ')'] '=' '{' FilterElements '}';
+FilterType = Identifier;
+FilterElements = FilterElement {FilterElementOperator FilterElement};
+FilterElementOperator = ',';
 
-Superimposition ::= `superimposition' `{' [Selectors] [FilterModuleBindings]
-                    [AnnotationBindings] [Constraints] `}'
+FilterElement = [ConditionExpression MatchingOperator] MatchingPatternSet;
 
-Selectors ::= `selectors' (SingleSelector)*
-SingleSelector ::= Identifier `=' `{' PredicateExpression `}' `;'
-PredicateExpression ::= Identifier PROLOG_EXPRESSION
+ConditionExpression = AndExpression ['|' ConditionExpression];
+AndExpression = UnaryExpression ['&' AndExpression];
+UnaryExpression = ['!'] ( Operand | '(' ConditionExpression ')' );
+Operand = Identifier | 'True' | 'False';
 
-FilterModuleBindings ::= `filtermodules' (FilterModuleBinding `;')*
-FilterModuleBinding ::= Identifier WeaveOperator 
-                        (FilterModuleReference-LIST 
-                        | `{' FilterModuleReference-LIST `}')
-FilterModuleReference ::= Identifier [`(' FilterArgument-LIST ')']
-AnnotationBindings ::= `annotations' (AnnotationBinding `;')*
-AnnotationBinding ::= Identifier WeaveOperator 
-                        (Identifier-LIST | `{' Identifier-LIST `}')
-WeaveOperator ::= `<-'
+MatchingOperator = '=>' | '~>';
+MatchingPatternSet = MatchingPart [SubstitutionPart];
+MatchingPart = '{' MatchingPattern {',' MatchingPattern} '}' | MatchingPattern;
+MatchingPattern = '[' TargetSelector ']' | '<' TargetSelector '>';
+SubstitutionPart = TargetSelector;
+TargetSelector = [Target '.'] Selector;
+Target = '*' |IdentifierOrParameter;
+Selector = '*' | IdentifierOrParameter | ParameterList;
 
-Constraints ::= //Not yet implementend
+Superimposition = '{' [Conditionals] [Selectors] [FilterModuleBindings] [AnnotationBindings] [Constraints] '}';
 
-Implementation ::= `implementation'(`by' ClassName `;'
-                   | `in' SourceLanguage `by' ClassName `as' FileName `{' Source `}'
-                   
-ELEMENT-LIST ::= ELEMENT (`,' ELEMENT)*
-ELEMENT-SEQ ::= ELEMENT (`;' ELEMENT)*
+Conditionals = 'conditions' {SiCondition ';'};
+SiCondition = Identifier ':' Fqn ['(' Arguments ')']
 
-ClassName ::= Identifier (`.' Identifier)*
-FileName ::= Quote (Letter | Digit | Special | Dot)* Quote
-FilterArgument ::= SelectorIdentifier | MethodReference | Value
-FilterModuleElement ::= [PackageName (`.' PackageName)* `::'] 
-                        FilterModuleName `:' FilterElement
-FilterModuleName ::= Identifier
-FilterName ::= Identifier
-Identifier ::= (Letter | Special) (Letter | Digit | Special)*
-MethodName ::= Identifier
-Quote ::= `"'
-Selector ::= MethodName [`(' Type-SEQ'`)'] | `*' | Parameter | ParameterList
-SelectorIdentifier ::= Identifier
-SourceLanguage ::= Identifier
-Special ::= `_'
-Target ::= Identifier | `inner'| `*' | Parameter
-Type ::= ClassName | Parameter
-Value ::= Identifier | Number | Parameter | ParameterList
+Superimposition = '{' [Conditionals] [Selectors] [FilterModuleBindings] [AnnotationBindings] [Constraints] '}';
+Selectors = 'selectors' { Identifier '=' '{' ( LegacyExpr | PredicateExpr) '}' ';' };
+LegacyExpr = '*' ( ':' | '=' ) Fqn;
+PredicateExpr = Identifier '|' ? prolog expression ?;
 
-PROLOG_EXPRESSION ::= VarName `|' PrologBody
-VarName ::= UpperCase (LowerCase)*
-PrologBody ::= PrologFun-LIST
-PrologFun ::= ConstString [`(' [Arg-LIST] `)' ]
-Arg::= PrologFun | PrologVar | PrologList | ConstNum
-PrologVar ::= `_' | VarName
-PrologList ::= `[' `]' | `[' ListElems `]'
-ListElems ::= [Arg-LIST] [ `|' (PrologList | PrologVar) ]
+FilterModuleBindings = 'filtermodules' {FMBinding ';'};
+FMBinding = [ConditionId '=>'] SelectorId WeaveOp ( FilterModules | '{' FilterModules '}' );
+WeaveOp = '<-';
+ConditionId = Identifier;
+SelectorId = Identifier;
+FilterModules = FilterModuleRefParam {',' FilterModuleRefParam};
+FilterModuleRefParam = FilterModuleRef ['(' FmParam {',' FmParam} ')'];
+FilterModuleRef = [Fqn '::'] Identifier;
+FmParam = FmParamList | Fqn;
+FmParamList = '{' Fqn { ',' Fqn } '}';
+
+AnnotationBindings = 'annotations' {AnnotationBinding ';'};
+AnnotationBinding = SelectorId WeaveOp ( Annotations | '{' Annotations '}' );
+Annotation = Fqn { ',' Fqn };
+
+Constraints = 'constaints' {Constraint ';'}
+Constraint = Identifier '(' FilterModuleRef ',' FilterModuleRef ')';
+
+Implementation = 'implementation' ('by' ClassName ';') | ( 'in' Language 'by' ClassName 'as' FileName SourceCode );
+ClassName = Identifier;
+Language = Identifier;
+FileName = '"' ? just a filename with extention ? '"';
+SourceCode = '{' ? the source code ? '}';
+
 \end{lstlisting}

@@ -1,65 +1,92 @@
 \chapter{Filter Module and Annotation Binding} \label{ch::arm::fmb}
-The binding parts are the places to bind certain properties to elements of a selector. Currently we can bind filter modules
-and annotations to classes.
+The binding parts are the places to bind certain properties to elements of a selector. 
+Currently we can bind filter modules and annotations to classes.
 
-\section*{Syntax}
-\begin{lstlisting}[caption = {Bindings syntax}, label = lst::ARM:fmb:syntax,
-style = listing, language = ebnf, float = tpb]
-FilterModuleBindings ::= `filtermodules' (FilterModuleBinding `;')*
-FilterModuleBinding ::= Identifier WeaveOperator 
-                        (FilterModuleReference-LIST 
-                        | `{' FilterModuleReference-LIST `}')
-FilterModuleReference ::= Identifier [`(' Argument-LIST ')']
-AnnotationBindings ::= `annotations' (AnnotationBinding `;')*
-AnnotationBinding ::= Identifier WeaveOperator 
-                        (Identifier-LIST | `{' Identifier-LIST `}')
-WeaveOperator ::= `<-'
+\section{Syntax}
+\begin{lstlisting}[caption = {Bindings syntax}, label = lst::ARM:fmb:syntax, style = listing, language = ebnf, float = tpb]
+Superimposition = '{' [Conditionals] [Selectors] [FilterModuleBindings] [AnnotationBindings] [Constraints] '}';
+
+FilterModuleBindings = 'filtermodules' {FMBinding ';'};
+FMBinding = [ConditionId '=>'] SelectorId WeaveOp ( FilterModules | '{' FilterModules '}' );
+WeaveOp = '<-';
+ConditionId = Identifier;
+SelectorId = Identifier;
+FilterModules = FilterModuleRefParam {',' FilterModuleRefParam};
+FilterModuleRefParam = FilterModuleRef ['(' FmParam {',' FmParam} ')'];
+FilterModuleRef = [Fqn '::'] Identifier;
+FmParam = FmParamList | Fqn;
+FmParamList = '{' Fqn { ',' Fqn } '}';
+
+AnnotationBindings = 'annotations' {AnnotationBinding ';'};
+AnnotationBinding = SelectorId WeaveOp ( Annotations | '{' Annotations '}' );
+Annotation = Fqn { ',' Fqn };
 \end{lstlisting}
-The syntax in \autoref{lst::ARM:fmb:syntax} shows the common layout for bindings. The weave operator is legacy, from
-the times when unweaving was still considered. The left hand side identifier must be a selector reference and the
-right hand side depends on what kind of binding you are doing.
+The syntax in \autoref{lst::ARM:fmb:syntax} shows the common layout for bindings. 
 
-\section*{Semantics}
-The meanings of the bindings is that you superimpose whatever is on the right hand side on the left hand side.
+Filter module bindings can be prefixed with a condition identifier in order to achieve conditional super imposition.
+The selector identifier refers to one of the defined selectors.
+The weave operator is legacy, from the times when unweaving was still considered, this is a constant \lstinline|<-|.
+After the weave operator a list of filter module references is defined.
+This list can be enclosed within angular brackets, but it is not required.
+A filter module reference can point to either a locally defined filter module (\lstinline|Foo|) or a filter module defined in an other concern (\lstinline|Example.Concern::Foo|).
+Followed by the reference filter module parameters can be provided.
+The filter module parameters are either a single value or a list of values \lstinline|{Value1, Value2, ...}|.
+Each value is a fully qualified name of a class.
+Alternatively the selectors can also be used as parameters.
+
+Annotation binding is a bit more simple.
+It consists of a selector reference and a list of annotation classes to bind to the selector.
+
+\section{Semantics}
+The meaning of the bindings is that you superimpose the elements on the right hand side of the weave operator, on selected program elements referenced on the left hand side.
 Currently \Compose* only binds filter modules and annotations. 
-The bindings gets executed during the initialization of the application.
 
-\section*{Examples}
+\section{Examples}
 \begin{lstlisting}[caption={Examples of bindings}, label = lst::ARM:fmb:example1,
 style=listing, language =ComposeStar, float = tpb]
 filtermodules
   selA <- filtermoduleA;
-  selB <- filtermoduleB(``Argument'', selC), filtermoduleA;
+  selB <- filtermoduleB(Argument, selC), filtermoduleA;
+  isTracing => selC <- TracingConcern::TraceAll;
 annotations
   selA <- anAnnotation;
 \end{lstlisting}
-A binding has a left hand side and a right hand side, the left hand side contains a selector identifier,
-which contains a selection of classes. The right hand side has one or more filter module identifiers with the appropriate
-arguments or one of more annotations. Some examples are shown in \autoref{lst::ARM:fmb:example1}.
+A binding has a left hand side and a right hand side, the left hand side contains a selector identifier, which contains a selection of classes. 
+The right hand side has one or more filter module identifiers with the appropriate arguments or one of more annotations. 
+Some examples are shown in \autoref{lst::ARM:fmb:example1}.
 
-\section*{Legality Rules}
+\section{Legality Rules}
 \begin{itemize}[noitemsep]
 \item The used selectors must be defined in the same superimposition block;
-\item The used filter module references must point to an existing filter module.
+\item The used conditions must be defined in the same superimposition block;
+\item The used filter module references must point to an existing filter module;
+\item Both local and external filter modules can be used;
+\item When filter modules defined parameters the same number and type of values must be provided during the binding.
 \end{itemize}
 
-%faq{} -> geen vragen, moet alemaal duidelijk zijn
+\faq{
+\question{Is it possible to use complex condition expressions?}
+\answer{Only a single condition can be used for the condition super imposition.
+It is not possible to create expressions like \lstinline|cond1 & cond2|.
+To achieve this behavior you can create a static method that does this check internally.}
+}
 \comments{
-\para{More Binding Operations} % aka puinruimen
-In the begin days of \Compose* there were ideas on binding and unbinding on events, however these never got implemented.
-This leaves us with the only weave operator: ``\lstinline|<-|''.
-
 \para{Introduction of Parameters}
 The binding of filter modules differs from the annotation binding because it has the possibility to attach arguments.
 In this argument list we allow constructors to get an unique external that is only shared for that binding.
+Currently only direct class references can be used as value of the parameters.
+
+\para{Condition Superimposition}
+Condition Superimposition is currently only supported by StarLight.
+
 }
-\dotnetcomment{
-\para{Introduction of Parameters}
-Both constructs mentioned in the comments do not work currently, only literals can be used as arguments for now.
-}
+%\dotnetcomment{}
 %\javacomment{}
 %\ccomment{}
+%\starlightcomment{}
 %\pending{}
 \furtherreading{
-More on filter module binding can be found in~\cite{salinas:ms01}. Annotation binding is introduced in~\cite{Havinga2005}.
+More on filter module binding can be found in~\cite{salinas:ms01}. 
+Annotation binding is introduced in~\cite{Havinga2005}.
+Information about filter module parameters can be found in \cite{Doornenbal2006}.
 }

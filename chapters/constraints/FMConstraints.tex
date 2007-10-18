@@ -1,0 +1,74 @@
+% empty template for an ARM chapter.
+\chapter{Constrains}\label{cha::fmconstaints}
+
+With the constraints defined in the super imposition block it is possible to define filter module ordering constraints.
+\Compose* will try to find the most suitable filter module ordering for each concern.
+When there are no defined constraints this order is arbitrary.
+In some cases certain filter modules must be superimposed before others to prevent behavioral conflicts.
+The constraint block in the superimposition block allows you to define such constraints.
+
+\section{Syntax}
+
+\begin{lstlisting}[caption={Filter Module Constrains Grammar}, label=lst::ARM:fmconstraint:syntax, style=listing, language=ebnf, float=tpb]
+Superimposition = '{' [Conditionals] [Selectors] [FilterModuleBindings] [AnnotationBindings] [Constraints] '}';
+Constraints = 'constaints' {Constraint ';'}
+Constraint = Identifier '(' FilterModuleRef ',' FilterModuleRef ')';
+FilterModuleRef = [Fqn '::'] Identifier;
+\end{lstlisting}
+
+Each constraint consists of a constraint type and two filter modules it defines the constraint over.
+Currently there is only one constraint type: \emph{pre}.
+
+\section{Semantics}
+
+The constraint definition define a ordering relation between the left filter module and right filter module.
+The \emph{pre} constraint defines that the left filter module must come before the right filter module.
+With this constraint it is allowed that other filter modules are between the left and right filter module.
+The \emph{pre} constraint is an alias for the \emph{soft-pre}.
+An other constraint is the \emph{hard-pre} constraint which is just like the \emph{soft-pre} constraint except that it does not allow other filter modules between the left and right filter module.
+
+The filter modules references in the constraints can be either local filter modules or filter modules in other concerns.
+The constraints between filter modules are global, they affect all filter module bindings in all superimposition blocks.
+
+\section{Examples}
+
+
+\begin{lstlisting}[caption={Filter module ordering constraints}, label = lst::ARM:fmconstraints:example1, style=listing, language =ComposeStar, float = tpb]
+superimposition{
+  constraints
+    pre(FM1, FM2);
+    pre(FM1, Examples.Otherconcern::Foo);
+    pre(Examples.Otherconcern::Foo, Examples.Otherconcern::Bar);
+}
+\end{lstlisting}
+
+The example in \autoref{lst::ARM:fmconstraints:example1} shows thre different constraints.
+The first declares a constraint between two locally declared filter modules.
+The second constraint is between a local and external filter module.
+And the last one declares a constraint between external filter modules.
+When declared constraints for external filter modules you should watch out not to create conflicting constraints.
+
+\section{Legality Rules}
+
+\begin{itemize}[noitemsep]
+\item Local filter modules must exist, external filter modules will be ignored when they do not exist;
+\item Constraints must not result in a cycle, e.g. \lstinline|pre(FM1, FM2);pre(FM2, FM1);| is illegal.
+\end{itemize}
+
+\faq{
+\para{Hints}
+You can use concern with only a constraint section to declare the constraints of all filter modules used in the whole program.
+This is especially useful when generic filter filter module only concerns are used.
+}
+
+%\comments{}
+%\dotnetcomment{}
+%\javacomment{}
+%\ccomment{}
+
+%\pending{}
+
+\furtherreading{
+More information about the constraints can be found in \cite{Nagy2006} and \cite{Vinkes2004}.
+Information about conflicts created by incorrect filter module ordering are described in \cite{Durr2004}.
+}

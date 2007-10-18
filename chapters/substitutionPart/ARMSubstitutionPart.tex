@@ -1,28 +1,30 @@
 % empty template for ARM entry. By Dirk Doornenbal. V1.5 2 mei 2006
 \chapter{Filter Substitution Part}
-The substitution part of a filter is where you can specify the changes in a message. Just like the
-matching part it consists of a target and a selector.
+The substitution part of a filter is where you can specify the changes in a message. 
+Just like the matching part it consists of a target and a selector.
 
-\section*{Syntax}
-The syntax is almost similar to the matching part and is shown is \autoref{lst::ARM:sp:syntax}. The difference is
-that the substitution part does not have any brackets, creating a visible difference between matching and substitution part. Another difference is that it is not possible to have a list of substitution parts.
+\section{Syntax}
+The syntax is almost similar to the matching part and is shown is \autoref{lst::ARM:sp:syntax}. 
+The difference is that the substitution part does not have any brackets, creating a visible difference between matching and substitution part. 
+Another difference is that it is not possible to have a list of substitution parts.
 
 \begin{lstlisting}[caption={Filter substitution part syntax},label=lst::ARM:sp:syntax,style = listing,language = ebnf,float=tpb]
-FilterElement = [ConditionExpression ConditionOperator] MessagePattern
-MessagePattern ::= Matching [SubstitutionPart]
-                   | MatchPattern
-                   | `{' Matching (`,' Matching)* `}' [SubstitutionPart] 
-Matching ::= SignatureMatching | NameMatching
-SubstitutionPart = [Target `.'] Selector
+FilterElement = [ConditionExpression MatchingOperator] MatchingPatternSet;
+MatchingPatternSet = MatchingPart [SubstitutionPart];
+SubstitutionPart = TargetSelector;
+TargetSelector = [Target '.'] Selector;
+Target = '*' |IdentifierOrParameter;
+Selector = '*' | IdentifierOrParameter | ParameterList;
 \end{lstlisting}
 
-\section*{Semantics}
+\section{Semantics}
 A substitution part gets executed when a filter matches, how it gets executed depends on the filter type.
-The meaning of the substitution part is simple, if there is a wild card on the target or selector spot the attribute of the message
-stays the same. Otherwise the attribute gets substituted with the given value.
+The meaning of the substitution part is simple, if there is a wild card on the target or selector spot the attribute of the message stays the same. 
+Otherwise the attribute gets substituted with the given value.
 
-\section*{Examples}
-In \autoref{lst::ARM:ARMSP:example1} three out of the four possible substitution part combinations are demonstrated. The matching parts are different as well to get a filter specification that means something.
+\section{Examples}
+In \autoref{lst::ARM:ARMSP:example1} three out of the four possible substitution part combinations are demonstrated. 
+The matching parts are different as well to get a filter specification that means something.
 The fourth is that the target stays the same and that the selector changes.
 
 \begin{lstlisting}[caption={Some possible substitution parts},label=lst::ARM:ARMSP:example1,
@@ -34,7 +36,7 @@ filtermodule example{
 
 \section*{Legality rules}
 \begin{itemize}[noitemsep]
-\item The used target must be a declared internal, external, the keyword ``inner'', or a single parameter;
+\item The used target must be a declared internal, external, the keyword ``inner'', the wildcard, or a single parameter;
 \item A selector can be a method or a single parameter;
 \item A selector cannot be a list of parameters.
 \end{itemize}
@@ -45,8 +47,8 @@ filtermodule example{
 \answer{A message can only be send to one method, so a list of methods would be meaningless.}
 
 \para{Hints}
-Keep an eye on where you send your messages to. If the combination of target and selector does not exist you get an error,
-but it is easier to find the error before it occurs.
+Keep an eye on where you send your messages to. 
+If the combination of target and selector does not exist you get an error, but it is easier to find the error before it occurs.
 }
 
 \comments{\input{chapters/substitutionPart/ARMSubstitutionPartComments}}

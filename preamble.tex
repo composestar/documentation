@@ -82,6 +82,7 @@
 \newcounter{@dotnetcomments}
 \newcounter{@javacomments}
 \newcounter{@ccomments}
+\newcounter{@starlightcomments}
 \newcounter{@faq}
 \newcounter{@furtherreading}
 \newcounter{@pending}
@@ -108,7 +109,7 @@
 \newcommand{\faq}[1]{\ifthenelse{\value{@faq}= 1}{\section{FAQ and Hints}#1}{}}
 \newcommand{\comments}[1]{\ifthenelse{\value{@comments}= 1}{\section{Commentary}#1}{}}
 \newcommand{\dotnetcomment}[1]{\ifthenelse{\value{@comments}= 1 \and \value{@dotnetcomments}= 1}
-{\subsection{Comments on Compose*.Net}
+{\subsection{Comments on \Compose*[DotNet]}
   %\begin{wrapfigure} [6] {l} [0pt] {0pt}
   	%\begin{figure}
 			%\centering
@@ -117,7 +118,7 @@
   %\end{wrapfigure}
 #1}{}}
 \newcommand{\javacomment}[1]{\ifthenelse{\value{@comments}= 1 \and \value{@javacomments}= 1}
-{\subsection{Comments on Compose*.Java}
+{\subsection{Comments on \Compose*[Java]}
   %\begin{wrapfigure} [6] {l} [0pt] {0pt}
   	%\begin{figure}
 			%\centering
@@ -126,7 +127,16 @@
   %\end{wrapfigure}
 #1}{}}
 \newcommand{\ccomment}[1]{\ifthenelse{\value{@comments}= 1 \and \value{@ccomments}= 1}
-{\subsection{Comments on Compose*.C}
+{\subsection{Comments on \Compose*[C]}
+  %\begin{wrapfigure} [6] {l} [0pt] {0pt}
+  	%\begin{figure}
+			%\centering
+			%\includegraphics[width = 2.5 cm]{images/logos/Cplain}
+		%\end{figure}    
+  %\end{wrapfigure}
+#1}{}}
+\newcommand{\starlightcomment}[1]{\ifthenelse{\value{@comments}= 1 \and \value{@starlightcomments}= 1}
+{\subsection{Comments on StarLight}
   %\begin{wrapfigure} [6] {l} [0pt] {0pt}
   	%\begin{figure}
 			%\centering

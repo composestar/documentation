@@ -1,52 +1,57 @@
 % empty template for ARM entry. By Dirk Doornenbal. V1.5 2 mei 2006
 \chapter{Filter Matching Part}
-The matching part of a filter is where the message is being matched. There are
-two different types of matching: name and signature matching.
+The matching part of a filter is where the message is being matched. 
+There are two different types of matching: name and signature matching.
 
-\section*{Syntax}
+\section{Syntax}
 \begin{lstlisting}[caption={Filter matching part syntax},label=lst::ARM:mp:syntax,style = listing,language = ebnf,float=tpb]
-FilterElement ::= [ConditionExpression ConditionOperator] MessagePattern
-MessagePattern ::= Matching [SubstitutionPart]
-                   | MatchPattern
-                   | `{' Matching (`,' Matching)* `}' [SubstitutionPart] 
-Matching ::= SignatureMatching | NameMatching
-SignatureMatching ::= `<' MatchPattern `>'
-NameMatching ::= `[' MatchPattern `]' | Quote MatchPattern Quote
-MatchPattern ::= [Target `.'] Selector
+FilterElement = [ConditionExpression MatchingOperator] MatchingPatternSet;
+MatchingOperator = '=>' | '~>';
+MatchingPatternSet = MatchingPart [SubstitutionPart];
+MatchingPart = '{' MatchingPattern {',' MatchingPattern} '}' | MatchingPattern;
+MatchingPattern = '[' TargetSelector ']' | '<' TargetSelector '>';
+TargetSelector = [Target '.'] Selector;
+Target = '*' |IdentifierOrParameter;
+Selector = '*' | IdentifierOrParameter | ParameterList;
 \end{lstlisting}
-The syntax of the matching part is shown in \autoref{lst::ARM:mp:syntax}. The basic form is
-\lstinline|target.selector| surrounded by the tokens that mark the type of matching. It is possible
-to leave out these tokens when only a single MatchPattern is used, in that situation signature matching is applied by default.
-The target needs to be an internal, external, or the keyword \emph{inner}. The selector must be a method name.
-To indicate whether you want to use name matching or signature matching you can use square brackets (\lstinline![]!) or double quotes (\lstinline!`` ''!) for name matching and angle brackets (\lstinline!< >!) for signature matching.
+The syntax of the matching part is shown in \autoref{lst::ARM:mp:syntax}. 
+The basic form is \lstinline|target.selector| surrounded by the tokens that mark the type of matching. 
+The target needs to be an internal, external, or the keyword \emph{inner}. 
+The selector must be a method name.
+To indicate whether you want to use name matching or signature matching you can use square brackets (\lstinline![ ]!) for name matching and angle brackets (\lstinline!< >!) for signature matching.
+The matching operator defines how the matching part is applied to the message.
+The enable operator (\lstinline[language=Composestar]|=>|), the default when there is no operator, will accept the message when it matches the matching pattern.
+The disable operator (\lstinline[language=Composestar]|~>|) inverts the pattern, i.e. accept the message when it does \emph{not} match the pattern.
+The operator is optional, but when it is used the filter element must start with a condition expression.
+If no condition expression is needed simply use the constant \emph{true} as expression.
+It is possible to define a list of patterns to which the message can match: \lstinline[language=Composestar]|{[*.foo], [*.bar], <inner.*>}|;
+Combined with the operator you can match on all but a specified set of patterns: \lstinline[language=Composestar]|True ~> {[*.foo], [*.bar]}|.
+With this definition the filter will accept all messages that do not match \lstinline[language=Composestar]|[*.foo]| or \lstinline|[*.bar]|, it can be very useful in combination with the \emph{error} filter.
 
-\section*{Semantics}
-The name matching checks the target part of the match and the
-selector part. The use of the keyword ``inner'' 
-is, as you might expect, quite trivial for a name matching in an input filter.
+\section{Semantics}
+The name matching checks the target part of the match and the selector part. 
+The use of the keyword ``inner'' is, as you might expect, quite trivial for a name matching in an input filter.
 
-Signature matching checks whether the selector of the message is in the signature of the given target. This means that it is only useful to fill in the target when a signature matching is used.
-Filling in the selector in the signature matching has no use, because \lstinline|<foo.bar>| will
-always hold or always fail.
+Signature matching checks whether the selector of the message is in the signature of the given target. 
+This means that it is only useful to fill in the target when a signature matching is used.
+Filling in the selector in the signature matching has no use, because \lstinline|<foo.bar>| will always hold or always fail.
 
 Both the target and the selector can be a parameter, for the selector it is also possible to use a list of parameters.
 With a list of parameters it means that one entry in the list must match.
 
-When you have a dispatch filter ands the selector is not in the signature of the object on which is superimposed, then the selector is added to the
-signature of this object. This mechanism is not used when a wild card is used on the selector spot,
-because that would imply that the signature becomes every possible method. The mechanism also works on singnature matching, which makes it possible to add the signature of the internal or external to the object on which is superimposed.
+When you have a dispatch filter and the selector is not in the signature of the object on which is superimposed, then the selector is added to the signature of this object. 
+This mechanism is not used when a wild card is used on the selector spot, because that would imply that the signature becomes every possible method. The mechanism also works on signature matching, which makes it possible to add the signature of the internal or external to the object on which is superimposed.
 
-\section*{Examples}
+\section{Examples}
 Three matching parts are demonstrated in \autoref{lst::ARM:ARMMP:example1} line 3. The first two
 are of the \emph{name matching} type and the third is an example of \emph{signature matching}.
-The matching \lstinline|[tar.sel]| first whether the target points to the same object as where ``tar'' refers to and
-it will try to match whether the selector is ``sel''. The second one,
-\lstinline|[*.sel]| ignores the target, because a wild card (``*'') is used and the selector is matched
-with ``sel''. The last one, \lstinline|<tar.*>| checks whether the selector is in the signature of ``tar''.
+The matching \lstinline|[tar.sel]| first whether the target points to the same object as where ``tar'' refers to and it will try to match whether the selector is ``sel''. 
+The second one, \lstinline|[*.sel]| ignores the target, because a wild card (``*'') is used and the selector is matched with ``sel''. 
+The last one, \lstinline|<tar.*>| checks whether the selector is in the signature of ``tar''.
 
 The second filter d2 on line 4 demonstrates how you can do a name matching where the selector must match when the selector is not \lstinline!foo! and not \lstinline!bar!.
-The matching works as follows, when a selector is one of the values of the list you get a match. Because of the \lstinline[language=Composestar]|~>| this match becomes a reject, thus making this
-filter to reject when the selector is \lstinline!foo! or \lstinline!bar!.
+The matching works as follows, when a selector is one of the values of the list you get a match. 
+Because of the \lstinline[language=Composestar]|~>| this match becomes a reject, thus making this filter to reject when the selector is \lstinline!foo! or \lstinline!bar!.
 Especially for this type on of constructions a matching list is introduced.
 
 \begin{lstlisting}[caption={Some possible matching parts},label=lst::ARM:ARMMP:example1,
@@ -57,27 +62,26 @@ filtermodule example{
     d2 : Dispatch = {True ~> {[*.foo] , [*.bar]} inner.*}
 \end{lstlisting}
 
-It is also possible to use parameters as the target and the selector, for the target
-only a single parameter can be used, while for the selector both a single parameter and a list of parameters can be used.
+It is also possible to use parameters as the target and the selector, for the target only a single parameter can be used, while for the selector both a single parameter and a list of parameters can be used.
 
-\section*{Legality rules}
+\section{Legality rules}
 \begin{itemize}[noitemsep]
-\item The used target must be a declared internal, external, the keyword ``inner'', or a parameter;
-\item A selector can be a method, a single parameter, or a list of parameters.
+\item The used target must be a declared internal, external, the keyword ``inner'', the wildcard, or a parameter;
+\item A selector can be a method, a single parameter, the wildcard, or a list of parameters;
+\item The matching operator can only be used when the filter element starts with a condition expression.
 \end{itemize}
 
 \faq{
 \para{FAQ}
 \question{Why is it not possible to use class names as targets?}
-\answer{The messages are sent from object to object, therefore the choice is made to use objects as targets instead
-of class names. The used identifier in the filters refers to internals, externals, or is the inner object (the object where is superimposed on).
+\answer{The messages are sent from object to object, therefore the choice is made to use objects as targets instead of class names. 
+The used identifier in the filters refers to internals, externals, or is the inner object (the object where is superimposed on).
 It is however possible to achieve filtering on class names with a meta filter.
 }
 
 \para{Hints}
-Keep an eye on the \lstinline|[*.*]| because any declaration afterwards does not get reached at all. Another
-important thing is that in order to make exceptions for a \lstinline|[*.*]| matching, you can place a filter before
-that matching.
+Keep an eye on the \lstinline|[*.*]| because any declaration afterward does not get reached at all. Another
+important thing is that in order to make exceptions for a \lstinline|[*.*]| matching, you can place a filter before that matching.
 }
 
 \comments{\input{chapters/matchingPart/ARMMatchingPartComment}}

@@ -3,37 +3,44 @@
 The selector field is where you can make a selection of certain program elements. The selections
 can be used to bind filter modules or annotations, and it is possible to use the selection as an argument for a filter module parameter.
 
-\section*{Syntax} %\label{insert_label}
-\begin{lstlisting}[caption = {Selector syntax}, label = lst::ARM:sel:syntax,
-style = listing, language = ebnf, float = tpb]
-Selectors ::= `selectors' (SingleSelector)*
-SingleSelector ::= Identifier `=' `{' PredicateExpression `}' `;'
-PredicateExpression ::= Identifier PROLOG_EXPRESSION
+\section{Syntax} %\label{insert_label}
+\begin{lstlisting}[caption = {Selector syntax}, label = lst::ARM:sel:syntax, style = listing, language = ebnf, float = tpb]
+Superimposition = '{' [Conditionals] [Selectors] [FilterModuleBindings] [AnnotationBindings] [Constraints] '}';
+Selectors = 'selectors' { Identifier '=' '{' ( LegacyExpr | PredicateExpr) '}' ';' };
+LegacyExpr = '*' ( ':' | '=' ) Fqn;
+PredicateExpr = Identifier '|' ? prolog expression ?;
 \end{lstlisting}
-The identifier of a selector must be unique for the superimposition where you declare it in. The list of possible
-predicate expressions can be found in \autoref{appendix:selectorfunctions}.
 
-\section*{Semantics}
+The identifier of a selector must be unique for the superimposition where you declare it in. 
+There are two available selector expressions: the legacy expression (usage discouraged) and the predicate expression.
+
+The legacy expression always starts with a \lstinline|*| followed by an operator and the fully qualified name of a class.
+The \lstinline|=| selects the specified class, and \lstinline|:| selects the specified class and all its subclasses.
+
+The predicate selector consists of two parts, the first part is the identifier that will contain the result of the evaluated predicate expression. 
+The second part contains the predicate expression, which is a prolog expression.
+This expression should create a result with the identifier specified in the first part.
+The list of possible predicate expressions can be found in \autoref{appendix:selectorfunctions}.
+
+\section{Semantics}
 With the declaration of a selector you make a selection of program elements and you label these with an identifier.
-This identifier can be used in the different bindings and as filter module argument. There is a default selector
-``self'' which selects a class with the same name as the concern.
+This identifier can be used in the different bindings and as filter module argument. 
+There is a default selector ``self'' which selects a class with the same name as the concern.
 
-\section*{Examples}
-\begin{lstlisting}[caption={Some selector examples}, label = lst::ARM:sel:example1,
-style=listing, language =ComposeStar, float = tpb]
+\section{Examples}
+\begin{lstlisting}[caption={Some selector examples}, label = lst::ARM:sel:example1, style=listing, language =ComposeStar, float = tpb]
 selectors
   strategy = 
     { Random | isClassWithName(Random, 'pacman.Strategies.RandomStrategy') };
   levels = 
     { C | isClassWithNameInList (C, ['pacman.World', 'pacman.Pacman']) };
   player = 
-    { C | methodHasAnnotationWithName (M, 'Jukebox.StateChange'),
-          classHasMethod(C, M)};
+    { C | methodHasAnnotationWithName (M, 'Jukebox.StateChange'), classHasMethod(C, M)};
 \end{lstlisting}
-In \autoref{lst::ARM:sel:example1} there are three example selections demonstrated. The selectors are written with
-queries, that are modeled to a common language model.
+In \autoref{lst::ARM:sel:example1} there are three example selections demonstrated. 
+The selectors are written with queries, that are modeled to a common language model.
 
-\section*{Legality rules}
+\section{Legality rules}
 \begin{itemize}[noitemsep]
 \item A selector identifier must be unique for the superimposition block it is declared in;
 \item A selector identifier may not be named self.
@@ -44,10 +51,11 @@ queries, that are modeled to a common language model.
 %\para{Hints} -> no hints
 %}
 \comments{\input{chapters/selector/ARMSelectorComment} }
-\dotnetcomment{\input{chapters/selector/ARMSelectorDotNETComment}}
+%\dotnetcomment{}
 %\javacomment{}
 %\ccomment{}
 %\pending{}
 \furtherreading{
-In \cite{Havinga2005} the new selector language is introduced. The considerations on the chosen design and the implementation can be found there.
+In \cite{Havinga2005} the new selector language is introduced. 
+The considerations on the chosen design and the implementation can be found there.
 }

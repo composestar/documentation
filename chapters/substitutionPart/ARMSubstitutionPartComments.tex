@@ -1,11 +1,14 @@
-Just as with the matching part we can only work with the target and the selector. With the proposed
-new filter layout (\cite{Doornenbal2006}) we can alter more attributes of a message.
+Just as with the matching part we can only work with the target and the selector. 
+With the proposed new filter layout (\cite{Doornenbal2006}) we can alter more attributes of a message.
 
 \para{Substitution and the disable operator}
 When using the disable operator \lstinline[language=Composestar]|~>| the substitution part must use the wild card for the selector, or otherwise limit the signature space in an earlier filter in the same filter module. 
-This restriction is caused by the fact that the disable operator matches on everything except the list given in the matching part. This makes the number of signatures that match this filter definition infinite, and therefor the substitution part can not be validated if it maps to a single selector. 
+This restriction is caused by the fact that the disable operator matches on everything except the list given in the matching part. 
+This makes the number of signatures that match this filter definition infinite, and therefor the substitution part can not be validated if it maps to a single selector. 
 
-\autoref{lst::ARM:ARMSP:example2} is an example of an invalid definition that results in an infinite signature. A method to limit the signature space is shown in \autoref{lst::ARM:ARMSP:example3}. The error filter restricts the number of signatures passed to the second filter to only those that are defined in the inner class. All dynamically created signatures will be intercepted by the error filter.
+\autoref{lst::ARM:ARMSP:example2} is an example of an invalid definition that results in an infinite signature. 
+A method to limit the signature space is shown in \autoref{lst::ARM:ARMSP:example3}. 
+The error filter restricts the number of signatures passed to the second filter to only those that are defined in the inner class. All dynamically created signatures will be intercepted by the error filter.
 
 \begin{lstlisting}[caption={Infinite signature definition},label=lst::ARM:ARMSP:example2,
 style=listing,language =ComposeStar,float=tpb]
